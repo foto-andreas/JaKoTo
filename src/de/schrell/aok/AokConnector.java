@@ -16,6 +16,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.concurrent.Semaphore;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class for the communication with the aok through serial interfaces
@@ -108,8 +110,7 @@ public class AokConnector {
                 serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
                 serialPort.setDTR(false);
                 serialPort.setInputBufferSize(1024);
-                serialPort.setOutputBufferSize(0);
-
+                serialPort.setOutputBufferSize(1024);
                 in = serialPort.getInputStream();
                 outs = serialPort.getOutputStream();
                 disconThread = new Thread(new DisCon());
@@ -207,9 +208,6 @@ public class AokConnector {
             return;
         }
 
-        // memorize the old debug status to restore it later
-        boolean olddebug = aok.getDebug();
-
         // config values byte field
         byte B[] = new byte[5];
 
@@ -222,32 +220,29 @@ public class AokConnector {
 
         // disable the debug mode of the Aok which would interfere with the
         // commands and answers
-        // disable the debug mode of the Aok which would interfere with the
-        // commands and answers
-        while (aok.getDebug()) {
-            sc.acquire();
-            command(aok.CMD_DEBUG_OFF);
-            sc.release();
-            aok.setDebug(false);
-            aok.asb.debug.setSelected(false);
-            Thread.sleep(200); // wait a moment for the reaction
-        }
+        boolean olddebug = debugOff();
 
         // acquire the serial line
         sc.acquire();
-        // clean it up from spurious debug values
-        while (in.available() > 0) {
-            getByte();
+
+        // Info
+        if (check) {
+            System.out.print("check: [");
+        } else {
+            System.out.print("read:  [");
         }
+
         // ask the Aok for all configuration values or only the selected ones if
         // one ore more are selected
         int count = 0;
         boolean errors = false;
         for (int i = 0; i < aok.getAokConfigCount(); i++) {
             if (getall || aok.act.isConfigSelected(aok.convertConfigToView(i))) {
-//				System.out.println("READING CONFIG "+i);
-//				System.out.println("TOVIEW "+aok.convertConfigToView(i));
                 int config = 0; // the actual configuration value
+                // clean it up from spurious debug values
+                while (in.available() > 0) {
+                    getByte();
+                }
                 command(aok.CMD_READCONF); // send command
                 command((byte) i); // send the configuration value number
                 byte crc = getBytes(B, 5, 0); // read the value and the crc
@@ -259,22 +254,30 @@ public class AokConnector {
                         if (aok.getAokConfig(i) != config) {
                             errors = true;
                             System.out.printf(
-                                    "Config Value %d (%s) differs: %d (TAB) != %d (AOK).\n",
+                                    "\nConfig Value %d (%s) differs: %d (TAB) != %d (AOK).\n",
                                     i, aok.getAokConfigName(i), aok.getAokConfig(i), config);
                             aok.asb.checkconf.setForeground(Color.red);
                             aok.asb.checkconf.repaint();
+                            System.out.print('X');
+                        } else {
+                            System.out.print('O');
                         }
                     } else {
                         aok.act.setConfigAt(aok.convertConfigToView(i), config);
+                        System.out.print('O');
                     }
                     aok.asb.setProgressBarVal(count++); // update the status bar
                 } else {
-                    System.out.printf(
-                            "CRC-Error (RCFG):   %03d %02x %02x %02x %02x >> %02x != %02x\n",
-                            i, B[0], B[1], B[2], B[3], crc, 0);
+                    System.out.print('E');
+                    /*                    System.out.printf(
+                    "CRC-Error (RCFG):   %03d %02x %02x %02x %02x >> %02x != %02x\n",
+                    i, B[0], B[1], B[2], B[3], crc, 0);
+                     */
+                    i--; // nochmal versuchen
                 }
             }
         }
+        System.out.println(']');
         sc.release(); // release the serial line
 
         // release the progress bar
@@ -287,22 +290,23 @@ public class AokConnector {
 
         // info to user
         if (check) {
+            Color oldcol = aok.asb.checkconf.getForeground();
             if (errors) {
                 aok.asb.checkconf.setForeground(Color.red);
             } else {
                 aok.asb.checkconf.setForeground(Color.green);
             }
             Thread.sleep(3000);
-            aok.asb.checkconf.setForeground(Color.black);
+            aok.asb.checkconf.setForeground(oldcol);
         }
         // if Aok was in debug mode before it is restored now
         if (olddebug) {
             sc.acquire();
             command(aok.CMD_DEBUG_ON);
             sc.release();
-            aok.setDebug(true);
-            aok.asb.debug.setSelected(true);
         }
+
+
     }
 
     /**
@@ -348,9 +352,6 @@ public class AokConnector {
             return;
         }
 
-        // memorize the old debug status to restore it later
-        boolean olddebug = aok.getDebug();
-
         // config values byte field
         byte B[] = new byte[7];
 
@@ -363,21 +364,14 @@ public class AokConnector {
 
         // disable the debug mode of the Aok which would interfere with the
         // commands and answers
-        while (aok.getDebug()) {
-            sc.acquire();
-            command(aok.CMD_DEBUG_OFF);
-            sc.release();
-            aok.setDebug(false);
-            aok.asb.debug.setSelected(false);
-            Thread.sleep(200); // wait a moment for the reaction
-        }
+        boolean olddebug = debugOff();
 
         // acquire the serial line
         sc.acquire();
-        // clean it up from spurious debug values
-        while (in.available() > 0) {
-            getByte();
-        }
+
+        // Info
+        System.out.print("write: [");
+
         // ask the Aok for all configuration values or only the selected ones if
         // one ore more are selected
         int count = 0;
@@ -394,18 +388,20 @@ public class AokConnector {
                 byte erg = getByte();
                 if (erg == 'O') {
                     aok.asb.setProgressBarVal(count++); // update the status bar
-                    // System.out
-                    // .printf(
-                    // "OK (WCFG):   %03d %02x %02x %02x %02x %02x %02x %02x >> %c\n",
-                    // B[1], B[0], B[1], B[2], B[3], B[4], B[5], B[6], erg);
+                    System.out.print('O');
                 } else {
-                    System.out.printf(
-                            "Error (WCFG):   %03d %02x %02x %02x %02x %02x %02x %02x >> %c\n",
-                            B[1], B[0], B[1], B[2], B[3], B[4], B[5],
-                            B[6], erg);
+                    /*                    System.out.printf(
+                    "Error (WCFG):   %03d %02x %02x %02x %02x %02x %02x %02x >> %c\n",
+                    B[1], B[0], B[1], B[2], B[3], B[4], B[5],
+                    B[6], erg);
+                     */ i--; // Wert nochmal versuchen
+                    System.out.print('E');
                 }
             }
         }
+        // Info
+        System.out.println(']');
+
         sc.release(); // release the serial line
 
         // release the progress bar
@@ -416,8 +412,6 @@ public class AokConnector {
             sc.acquire();
             command(aok.CMD_DEBUG_ON);
             sc.release();
-            aok.setDebug(true);
-            aok.asb.debug.setSelected(true);
         }
     }
 
@@ -483,23 +477,7 @@ public class AokConnector {
 
         System.err.println("disable debug values...");
 
-        while (aok.getDebug()) {
-            sc.acquire();
-            command(aok.CMD_DEBUG_OFF);
-            sc.release();
-            aok.setDebug(false);
-            aok.asb.debug.setSelected(false);
-            Thread.sleep(1000); // wait a moment for the reaction
-        }
-
-        System.err.println("check for spurious bytes...");
-
-        // acquire the serial line
-        sc.acquire();
-        // and clean it up from spurious debug values
-        while (in.available() > 0) {
-            getByte();
-        }
+        debugOff();
 
         System.err.println("starting update...");
 
@@ -511,8 +489,7 @@ public class AokConnector {
             Thread.sleep(100);
             while (in.available() > 0) {
                 byte b = getByte();
-                System.out.printf("%c", b);
-
+                System.out.print((char) b);
             }
         }
         Thread.sleep(500);
@@ -548,24 +525,26 @@ public class AokConnector {
                         // reset to last chunk position to resend the last chunk
                         fi.seek(fpos);
                         pos = fpos - 1; // wird gleich um eins erhöht
+                        System.out.print('E');
                         break;
                     case 'O': // ok
                         // update the progress bar
                         aok.asb.setProgressBarVal((int) pos);
+                        System.out.print('O');
                         break;
                     default: // unknown answer
                         System.out.println();
                         System.out.print("ERROR: wrong return value from AOK: ");
                         break;
                 }
-                // give infos to the user
-                System.out.printf("%c", erg);
             }
             pos++;
         }
 
         // tell the AOK we have finished
         command(aok.CMD_FLASH_END);
+
+        System.out.println();
 
         Thread.sleep(1000);
         while (in.available() > 0) {
@@ -592,6 +571,10 @@ public class AokConnector {
      */
     public void command(byte cmd[]) throws IOException {
         outs.write(cmd);
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+        }
     }
 
     /**
@@ -603,6 +586,10 @@ public class AokConnector {
      */
     public void command(byte cmd) throws IOException {
         outs.write(cmd);
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+        }
     }
 
     /**
@@ -739,16 +726,8 @@ public class AokConnector {
             return;
         }
         if (aok.getDebug()) {
-            sc.acquire();
-            command(aok.CMD_DEBUG_OFF);
-            aok.setDebug(false);
-            aok.asb.debug.setSelected(false);
+            debugOff();
             System.out.println("AOK debugging off");
-            Thread.sleep(200);
-            while (in.available() > 0) {
-                getByte();
-            }
-            sc.release();
             aok.ast.setFreq(null);
         } else {
             int d[] = {0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF};
@@ -792,17 +771,17 @@ public class AokConnector {
                 command(B); // send command
                 byte erg = getByte();
                 if (erg != 'O') {
-                    System.out.printf(
-                            "Error (WCFG):   %03d %02x %02x %02x %02x %02x %02x %02x >> %c\n",
-                            B[1], B[0], B[1], B[2], B[3], B[4], B[5],
-                            B[6], erg);
+                    System.out.print('E');
+                    i--;
+                } else {
+                    System.out.print('O');
                 }
             }
             command(aok.CMD_DEBUG_ON);
-            aok.setDebug(true);
-            aok.asb.debug.setSelected(true);
-            System.out.println("AOK debugging on");
             sc.release();
+//            aok.setDebug(true);
+//            aok.asb.debug.setSelected(true);
+            System.out.println("\nAOK debugging on");
         }
     }
 
@@ -889,5 +868,29 @@ public class AokConnector {
         command((byte) i);
         sc.release();
         System.out.println("AOK flash #" + i + " set as start set");
+    }
+
+    public boolean debugOff() throws IOException, InterruptedException {
+        boolean wasOn = false;
+        while (aok.getDebug()) {
+            wasOn = true;
+            try {
+                sc.acquire();
+                command(aok.CMD_DEBUG_OFF);
+                sc.release();
+                Thread.sleep(1000); // wait a moment for the reaction
+                aok.setDebug(false);
+                sc.acquire();
+                while (in.available() > 0) {
+                    in.skip(in.available());
+                    Thread.sleep(50);
+                }
+                sc.release();
+                aok.asb.debug.setSelected(false);
+            } catch (InterruptedException ex) {
+                // do nothing
+            }
+        }
+        return wasOn;
     }
 }

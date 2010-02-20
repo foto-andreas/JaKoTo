@@ -102,14 +102,15 @@ public class DebugReader implements Runnable {
 								aok.asb.debug.setSelected(true);
 							}
 						} else { // CRC error
-							System.out
+                            System.out.print('D');
+/*							System.out
 									.printf(
 											"CRC-Error (DBG): %02x   %02x %02x %02x %02x >> %02x != %02x\n",
 											nr, B[0], B[1], B[2], B[3], crc, 0);
-						}
+*/						}
 					} else {
 						// if (b > 0x1F && b < 0x80)
-						System.out.printf("%c", (char) b);
+						System.out.print((char)b);
 					}
 
 					if (iscomport)

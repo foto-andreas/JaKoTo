@@ -121,7 +121,9 @@ public class TrafficLightsPanel extends JPanel {
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			} catch (IndexOutOfBoundsException e2) {
+                // do nothing
+            }
 		}
 	}
 
@@ -146,7 +148,9 @@ public class TrafficLightsPanel extends JPanel {
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
+			} catch (IndexOutOfBoundsException e2) {
+                // do nothing
+            }
 		}
 	}
 
@@ -166,7 +170,9 @@ public class TrafficLightsPanel extends JPanel {
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
+			} catch (IndexOutOfBoundsException e2) {
+                // do nothing
+            }
 		}
 	}
 
@@ -186,7 +192,9 @@ public class TrafficLightsPanel extends JPanel {
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
+			} catch (IndexOutOfBoundsException e2) {
+                // do nothing
+            }
 		}
 	}
 
@@ -210,7 +218,9 @@ public class TrafficLightsPanel extends JPanel {
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
+			} catch (IndexOutOfBoundsException e2) {
+                // do nothing
+            }
 		}
 	}
 
@@ -234,7 +244,9 @@ public class TrafficLightsPanel extends JPanel {
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
+			} catch (IndexOutOfBoundsException e2) {
+                // do nothing
+            }
 		}
 	}
 
@@ -255,10 +267,12 @@ public class TrafficLightsPanel extends JPanel {
 					tl7.setState(n);
 					Thread.sleep(1000);
 				}
-			} catch (InterruptedException e1) {
+            } catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
+			} catch (IndexOutOfBoundsException e2) {
+                // do nothing
+            }
 		}
 	}
 
@@ -278,7 +292,9 @@ public class TrafficLightsPanel extends JPanel {
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
+			} catch (IndexOutOfBoundsException e2) {
+                // do nothing
+            }
 		}
 	}
 
@@ -303,7 +319,9 @@ public class TrafficLightsPanel extends JPanel {
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
+			} catch (IndexOutOfBoundsException e2) {
+                // do nothing
+            }
 		}
 	}
 
@@ -328,7 +346,9 @@ public class TrafficLightsPanel extends JPanel {
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
+			} catch (IndexOutOfBoundsException e2) {
+                // do nothing
+            }
 		}
 	}
 
@@ -348,7 +368,9 @@ public class TrafficLightsPanel extends JPanel {
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
+			} catch (IndexOutOfBoundsException e2) {
+                // do nothing
+            }
 		}
 	}
 
@@ -368,7 +390,9 @@ public class TrafficLightsPanel extends JPanel {
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
+			} catch (IndexOutOfBoundsException e2) {
+                // do nothing
+            }
 		}
 	}
 
