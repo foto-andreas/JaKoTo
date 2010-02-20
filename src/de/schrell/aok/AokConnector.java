@@ -140,19 +140,20 @@ public class AokConnector {
         }
         System.out.println("Closing connection...");
         connected = false;
-        if (!inshutdown) {
-            Runtime.getRuntime().removeShutdownHook(disconThread);
-        }
         try {
-            Thread.sleep(100);
+//            if (!inshutdown) {
+//                Runtime.getRuntime().removeShutdownHook(disconThread);
+//            }
+            aok.setDebug(false);
+            aok.asb.debug.setSelected(false);
             in.close();
             outs.close();
+            commPort.close();
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
         }
-        commPort.close();
         System.out.println("Connection closed.");
         aok.ast.setFreq(null);
         return true;
@@ -549,7 +550,7 @@ public class AokConnector {
         Thread.sleep(1000);
         while (in.available() > 0) {
             byte b = getByte();
-            System.out.printf("%c", b);
+            System.out.print((char) b);
         }
 
         // release the serial line
@@ -571,10 +572,10 @@ public class AokConnector {
      */
     public void command(byte cmd[]) throws IOException {
         outs.write(cmd);
-        try {
-            Thread.sleep(5);
-        } catch (InterruptedException e) {
-        }
+        //      try {
+        //          Thread.sleep(5);
+        //      } catch (InterruptedException e) {
+        //      }
     }
 
     /**
@@ -586,10 +587,10 @@ public class AokConnector {
      */
     public void command(byte cmd) throws IOException {
         outs.write(cmd);
-        try {
-            Thread.sleep(5);
-        } catch (InterruptedException e) {
-        }
+//        try {
+//            Thread.sleep(5);
+//        } catch (InterruptedException e) {
+//        }
     }
 
     /**
@@ -892,5 +893,16 @@ public class AokConnector {
             }
         }
         return wasOn;
+    }
+
+    private void waitDebugDelay() {
+        int dd = aok.getAokConfig(Aok.CONFIG_DEBUG_DELAY);
+        if (dd > 0) {
+            try {
+                Thread.sleep(dd);
+            } catch (InterruptedException ex) {
+                // do nothing
+            }
+        }
     }
 }

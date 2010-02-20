@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -210,6 +212,11 @@ public class AokStatusWindow {
 						public void windowClosing(WindowEvent arg0) {
 							// TODO Auto-generated method stub
 							aok.asw.saveLayout();
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(AokStatusWindow.class.getName()).log(Level.SEVERE, null, ex);
+                            }
 							System.out.println("Main window closing...");
 
 						}
