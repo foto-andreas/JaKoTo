@@ -1,0 +1,99 @@
+Angle Roll
+Angle Nick
+Angle Yaw
+Acc Roll
+Acc Nick
+Vel Baro
+GInt Roll
+GInt Nick
+GInt Yaw
+Max_Velocity
+Max_Height
+Max_Distance
+Vel_Z
+Pressure
+MM3_heading
+MM3_gyro_heading
+MM3_front_heading
+FlyingDirection
+Min_Height
+GPS Frames
+GPS Fix
+GPS #SVs
+GPS North
+GPS East
+GPS Alt
+GPS VEL North
+GPS VEL East
+GPS VEL Down
+eRoll
+eNick
+eYaw
+Abs_Velocity
+Home_Distance
+Home_Heading
+RX OK
+MOTrunning
+ADCmid Roll
+ADCmid Nick
+LockedPressure
+Height
+Stick Roll
+Stick Nick
+Stick Pitch
+Stick Yaw
+MM3_X
+MM3_Y
+MM3_Z
+ADC0 ACC-Nick
+ADC1 ACC-Roll
+ADC2 ACC-Z
+ADC3 Voltage
+ADC4 GYRO-Roll
+ADC5 GYRO-Nick
+ADC6 GYRO-Yaw
+ADC7
+RC1
+RC2
+RC3
+RC4
+RC5
+RC6
+RC7
+RC8
+RC9
+RC10
+RC11
+RC12
+Debug1
+Debug2
+Debug3
+Panic Mode
+GPS week
+GPS msecs
+Motor 1
+Motor 2
+Motor 3
+Motor 4
+Motor 5
+Motor 6
+Motor 7
+Motor 8
+Motor 9
+Motor 10
+Motor 11
+Motor 12
+Motor 13
+Motor 14
+Motor 15
+Motor 16
+GPS WAY North
+GPS WAY East
+GPS WAY Action1
+GPS WAY Action2
+GPS Target reached
+GPS HOME North
+GPS HOME East
+POTI1
+POTI2
+POTI3
