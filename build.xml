@@ -78,7 +78,7 @@
 
     <target name="-post-jar">
         <exec dir="." executable="cp">
-            <arg line="-r dist/JaKoTo.jar dist/README.TXT dist/lib JaKoTo/"/>
+            <arg line="-r dist/JaKoTo.jar dist/README.TXT LICENSE.txt dist/lib JaKoTo/"/>
         </exec>
         <exec dir="." executable="tar">
             <arg line="cvzf JaKoTo.tar.gz JaKoTo"/>
