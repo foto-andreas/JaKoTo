@@ -1,0 +1,10 @@
+JaKoTo.tar.gz
+JaKoTo/AOK-ParmDoku/*
+JaKoTo/JaKoTo.jar
+JaKoTo/README.TXT
+build/*
+dist/*
+manifest.mf
+nbproject/*
+src/de/schrell/CompileTime.java
+*.bak
