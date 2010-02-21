@@ -291,14 +291,13 @@ public class AokConnector {
 
         // info to user
         if (check) {
-            Color oldcol = aok.asb.checkconf.getForeground();
             if (errors) {
                 aok.asb.checkconf.setForeground(Color.red);
             } else {
                 aok.asb.checkconf.setForeground(Color.green);
             }
             Thread.sleep(3000);
-            aok.asb.checkconf.setForeground(oldcol);
+            aok.asb.checkconf.setForeground(Color.black);
         }
         // if Aok was in debug mode before it is restored now
         if (olddebug) {
