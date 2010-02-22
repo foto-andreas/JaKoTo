@@ -48,7 +48,7 @@ public class Aok {
 	public final static int STATUS_RX_OK = 34;
 
 	/** VERSION */
-	final String version = "(v0.09 " + new CompileTime().toString() + ")";
+	final String version = "(v0.10 " + new CompileTime().toString() + ")";
 
 	/** maximal possible state variables */
 	final int STATEMAX = 256;
