@@ -520,7 +520,7 @@ public class AokConnector {
                     case 'E': // error
                         // reset to last chunk position to resend the last chunk
                         fi.seek(fpos);
-                        pos = fpos - 1; // wird gleich um eins erhöht
+                        pos = fpos - 1; // will be incremented some lines below
                         System.out.print('E');
                         break;
                     case 'O': // ok
