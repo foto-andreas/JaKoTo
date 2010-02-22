@@ -390,11 +390,7 @@ public class AokConnector {
                     aok.asb.setProgressBarVal(count++); // update the status bar
                     System.out.print('O');
                 } else {
-                    /*                    System.out.printf(
-                    "Error (WCFG):   %03d %02x %02x %02x %02x %02x %02x %02x >> %c\n",
-                    B[1], B[0], B[1], B[2], B[3], B[4], B[5],
-                    B[6], erg);
-                     */ i--; // Wert nochmal versuchen
+                    i--; // Wert nochmal versuchen
                     System.out.print('E');
                 }
             }
@@ -436,7 +432,7 @@ public class AokConnector {
          *
          * @see java.lang.Runnable#run()
          */
-        /** @Override */
+        @Override
         public void run() {
             try {
                 flashAokInternal(aok, fw);

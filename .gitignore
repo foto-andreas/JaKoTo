@@ -2,9 +2,10 @@ JaKoTo.tar.gz
 JaKoTo/AOK-ParmDoku/*
 JaKoTo/JaKoTo.jar
 JaKoTo/README.TXT
+JaKoTo/LICENSE.txt
 build/*
 dist/*
 manifest.mf
-nbproject/*
 src/de/schrell/CompileTime.java
 *.bak
+build-before-profiler.xml
