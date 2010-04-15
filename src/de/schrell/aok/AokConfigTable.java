@@ -97,6 +97,7 @@ public class AokConfigTable {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 //				System.out.println("AokConfigTable.setConfigAt("+row+","+value);
+                aok.setAokConfig(aok.convertConfigFromView(row),new Integer(value) );
 				table.setValueAt(new Integer(value).toString(), row, 2);
 			}
 		});

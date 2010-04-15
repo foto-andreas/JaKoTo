@@ -83,10 +83,10 @@ Motor 9
 Motor 10
 Motor 11
 Motor 12
-Motor 13
-Motor 14
-Motor 15
-Motor 16
+unused
+unused
+unused
+unused
 GPS WAY North
 GPS WAY East
 GPS WAY Action1

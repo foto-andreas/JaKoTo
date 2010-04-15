@@ -36,6 +36,7 @@ public class Aok {
 	public final static int CONFIG_CHANNEL_HEIGHT = 60;
 	public final static int CONFIG_CHANNEL_VRATE = 82;
     public final static int CONFIG_DEBUG_DELAY = 110;
+    public final static int CONFIG_MIXER1 = 111;
 
 	public final static int STATUS_VOLTAGE = 50;
 	public final static int STATUS_GPSFRAMES = 19;
@@ -48,7 +49,7 @@ public class Aok {
 	public final static int STATUS_RX_OK = 34;
 
 	/** VERSION */
-	final String version = "(v0.10 " + new CompileTime().toString() + ")";
+	final String version = "(v0.11 " + new CompileTime().toString() + ")";
 
 	/** maximal possible state variables */
 	final int STATEMAX = 256;
@@ -95,6 +96,7 @@ public class Aok {
 	AokTabPrefs atp = null;
 	Configuration config = null;
 	AokTabOptions ato = null;
+    AokTabMixer atm = null;
 
 	/** file io */
 	ConfigFile cf = null;
