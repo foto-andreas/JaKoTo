@@ -105,22 +105,13 @@ public class AokStatusButtons {
 		connect.setSelected(false);
 		connect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (!aok.aco.connected) {
-					if (aco != null) {
-						if (aco.connect(port.getText(), speed.getText())) {
-							connect.setSelected(aco.connected);
-						} else {
-							// connect went wrong, enable the checkbox again
-							connect.setSelected(aco.connected);
-						}
+				if (aco != null) {
+					if (!aok.aco.connected) {
+						aco.connect(port.getText(), speed.getText());
+					} else {
+						aco.disconnect();
 					}
-				} else {
-					if (aco != null) {
-						if (aco.disconnect()) {
-							connect.setSelected(aco.connected);
-						}
-					}
-
+					connect.setSelected(aco.connected);
 				}
 			}
 		});
@@ -130,20 +121,35 @@ public class AokStatusButtons {
 		// add a debug checkbox to enable and disable the debug mode
 		bc.gridy++;
 		debug = new JCheckBox("State Values");
-		debug.setSelected(false);
+		debug.setSelected(aok.getDebug());
 		debug.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try {
-					if (aco != null)
-						aco.debugToggle();
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				if (aco != null) {
+					if (!aok.getDebug()) {
+						aco.debugOn();
+					} else {
+						aco.debugOff();
+					}
+					debug.setSelected(aok.getDebug());
 				}
 			}
 		});
 		lbc.setConstraints(debug, bc);
 		buttons.add(debug);
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					while (true) {
+						debug.setSelected(aok.getDebug());
+						Thread.sleep(1000);
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
 
 		// add a debug checkbox to enable and disable the debug mode
 		bc.gridy++;
@@ -170,15 +176,16 @@ public class AokStatusButtons {
 
 		bc.gridy++;
 		JPanel rambox = new JPanel();
-		rambox.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createLineBorder(Color.black), "Read/Write AOK RAM"));
+		rambox.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createLineBorder(Color.black),
+				"Read/Write AOK RAM"));
 		lbc.setConstraints(rambox, bc);
 		buttons.add(rambox);
 
 		bc.gridy++;
 		JPanel rwfile = new JPanel();
-		rwfile.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createLineBorder(Color.black), "Read/Write File"));
+		rwfile.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createLineBorder(Color.black), "Read/Write File"));
 		lbc.setConstraints(rwfile, bc);
 		buttons.add(rwfile);
 
@@ -292,20 +299,20 @@ public class AokStatusButtons {
 
 		bc.gridy++;
 		JPanel fwbox = new JPanel();
-		fwbox.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createLineBorder(Color.black), "AOK-RAM to Flash"));
+		fwbox.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createLineBorder(Color.black), "AOK-RAM to Flash"));
 		lbc.setConstraints(fwbox, bc);
 		buttons.add(fwbox);
 		bc.gridy++;
 		JPanel frbox = new JPanel();
-		frbox.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createLineBorder(Color.black), "Flash to AOK-RAM"));
+		frbox.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createLineBorder(Color.black), "Flash to AOK-RAM"));
 		lbc.setConstraints(frbox, bc);
 		buttons.add(frbox);
 		bc.gridy++;
 		JPanel ssbox = new JPanel();
-		ssbox.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createLineBorder(Color.black), "set startset "));
+		ssbox.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createLineBorder(Color.black), "set startset "));
 		lbc.setConstraints(ssbox, bc);
 		buttons.add(ssbox);
 
@@ -388,8 +395,8 @@ public class AokStatusButtons {
 		// add a button to read configuration values from a file
 		bc.gridy++;
 		JPanel rpbox = new JPanel();
-		rpbox.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createLineBorder(Color.black), "Logfile replay"));
+		rpbox.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createLineBorder(Color.black), "Logfile replay"));
 		lbc.setConstraints(rpbox, bc);
 		buttons.add(rpbox);
 
@@ -452,7 +459,6 @@ public class AokStatusButtons {
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				chooser.setApproveButtonText("Read");
 				int returnVal = chooser.showOpenDialog(buttons);
-				System.out.println("PATH: " + aok.binpath);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					new BinReplay(aok, chooser.getSelectedFile()
 							.getAbsolutePath());
@@ -483,7 +489,7 @@ public class AokStatusButtons {
 			}
 		});
 		lbc.setConstraints(flash, bc);
-//		flash.setEnabled(false);
+		// flash.setEnabled(false);
 		buttons.add(flash);
 
 		// add a reset button to reset the Arm-o-Kopter

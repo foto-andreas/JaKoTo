@@ -1,5 +1,6 @@
 package de.schrell.aok;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -14,21 +15,25 @@ import java.io.InputStream;
  */
 public class DebugReader implements Runnable {
 
-	Aok aok;
-	InputStream in;
-	boolean iscomport;
-	DisplayAngle displayAngle = null;
-	
+	private Aok aok;
+	// private DisplayAngle displayAngle = null;
+	private InputStream in = null;
+	private InputStream savedStream = null;
+	private long lastC;
+	private static int nullcount = 0;
+
 	/**
 	 * create a debug reader instance
 	 * 
 	 * @param in
 	 */
-	public DebugReader(Aok aok, InputStream in, boolean iscomport) {
+	public DebugReader(Aok aok) {
 		super();
 		this.aok = aok;
-		this.in = in;
-		this.iscomport = iscomport;
+	}
+
+	public InputStream getStream() {
+		return in;
 	}
 
 	/**
@@ -38,93 +43,97 @@ public class DebugReader implements Runnable {
 	 */
 	public void run() {
 		try {
-			byte b = 0, B[];
-			B = new byte[6];
-			System.out.println("Aok debug value reader starting...");
-			long lastC = 0;
-			int nullcount = 0;
-			while (iscomport || in.available() > 0) { // run only while Aok is
-				// connected
-				if (iscomport && !aok.aco.connected) {
-					Thread.sleep(500);
-					// System.out.print(".");
-					continue;
-				}
-				// System.out.print(":");
-				if (iscomport) {
-					in = aok.aco.in;
-					aok.aco.sc.acquire(); // acquire the serial line
-				}
-				if (in.available() > 0) { // data available at serial line
-					byte nr = 0;
-					b = getByte(); // get the info byte
-					if (b == 0x1C) { // perhaps the start of a debug entry
-						nr = getByte(); // get number of debug entry
-						byte crc = getBytes(B, 5, nr); // get value and crc
-						// sum
-						if (crc == 0x00) { // check crc sum
-							int value = bytesToInt(B); // convert the bytes
-							// to an integer
-							// update the table only when the current number
-							// is defined by the legend file
-							if (nr == 0) {
-								if (displayAngle==null) {
-//									displayAngle = new DisplayAngle(aok);
-								} else {
-//									displayAngle.calc();
-								}
-								// System.out.print(":");
-								aok.logfile.log(aok.AokStateValues);
-								long aktC = System.currentTimeMillis();
-								nullcount++;
-								if (lastC > 0) {
-									if (aktC - lastC > 5000) {
-
-										String freq = String.format("%.2f Hz",
-												1000.0 * nullcount
-														/ (aktC - lastC));
-										aok.ast.setFreq(freq);
-										lastC = aktC;
-										nullcount = 0;
-									}
-								} else {
-									lastC = System.currentTimeMillis();
-								}
-							}
-							if (nr >= 0 && nr < aok.getAokStateCount()) {
-								// System.out.printf("XX=%d\n",nr);
-								aok.setAokState(nr, value);
-							}
-							// update the debug status if the crc checksum
-							// was correct
-							if (iscomport && nr == 0) {
-								aok.setDebug(true);
-								aok.asb.debug.setSelected(true);
-							}
-						} else { // CRC error
-                            System.out.print('D');
-/*							System.out
-									.printf(
-											"CRC-Error (DBG): %02x   %02x %02x %02x %02x >> %02x != %02x\n",
-											nr, B[0], B[1], B[2], B[3], crc, 0);
-*/						}
-					} else {
-						// if (b > 0x1F && b < 0x80)
-						System.out.print((char)b);
+			System.out.println("Aok debug value reader created...");
+			lastC = 0;
+			while (true) {
+				synchronized (DebugReader.this) {
+					System.out.println("\nputting DebugReader to sleep...");
+					while (getStream() == null) {
+						DebugReader.this.wait(500);
 					}
-
-					if (iscomport)
-						aok.aco.sc.release(); // release the serial line
-					// else if (nr==0) Thread.sleep(10);
-				} else {
-					if (iscomport)
-						aok.aco.sc.release(); // release the serial line
-					Thread.sleep(10); // wait a moment before next
-					if (!aok.getDebug()) lastC = 0;
+					System.out.println("\nwaking up DebugReader...");
 				}
+				InputStream in = getStream();
+				while (((in instanceof FileInputStream) && (in.available() > 0))
+						|| aok.aco.connected) {
+					readValues(in);
+				}
+				if (in instanceof FileInputStream) {
+					in.close();
+				}
+				setStream(null);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		return;
+	}
+
+	private void readValues(InputStream in) throws IOException,
+			InterruptedException {
+		byte B[] = new byte[6];
+		int b;
+		int av = in.available();
+		if (av > 0) { // data available at serial line
+			int nr = 0;
+			b = getByte(); // get the info byte
+			if (b == -1)
+				return;
+			if (b == 0x1C) { // perhaps the start of a debug entry
+				nr = getByte(); // get number of debug entry
+				if (nr == -1)
+					return;
+				byte crc = getBytes(B, 5, nr); // get value and crc
+				if (crc == 0x00) { // check crc sum
+					aok.setDebug(true);
+					int value = bytesToInt(B); // convert the bytes to an
+												// integer
+					// update the table only when the current number
+					// is defined by the legend file
+					if (nr == 0) {
+						// if (displayAngle == null) {
+						// displayAngle = new DisplayAngle(aok);
+						// } else {
+						// displayAngle.calc();
+						// }
+						aok.setDebug(true);
+						aok.logfile.log(aok.AokStateValues);
+						long aktC = System.currentTimeMillis();
+						nullcount++;
+						if (lastC > 0) {
+							if (aktC - lastC > 5000) {
+								String freq = String.format("%.2f Hz", 1000.0
+										* nullcount / (aktC - lastC));
+								aok.ast.setFreq(freq);
+								lastC = aktC;
+								nullcount = 0;
+							}
+						} else {
+							lastC = System.currentTimeMillis();
+						}
+					}
+					if (nr >= 0 && nr < aok.getAokStateCount()) {
+						// System.out.printf("XX=%d\n", nr);
+						aok.setAokState(nr, value);
+					}
+					// update the debug status if the crc checksum was correct
+					if (nr == 0) {
+						aok.setDebug(true);
+						aok.asb.debug.setSelected(true);
+					}
+				} else { // CRC error
+					System.out.print('D');
+				}
+			} else {
+				if ((b > 0x1F && b < 0x80) || (b == 0x0d) || (b == 0x0a))
+					System.out.print((char) b);
+				else
+					System.out.printf("[%02X]", b);
+			}
+		} else {
+			Thread.sleep(10); // wait a moment before next
+			if (!aok.getDebug())
+				lastC = 0;
 		}
 		return;
 	}
@@ -135,9 +144,22 @@ public class DebugReader implements Runnable {
 	 * @return the byte read
 	 * @throws IOException
 	 */
-	private byte getByte() throws IOException {
-        if (!aok.aco.connected && this.in.available()<1) return (byte)0xFF;
-		return (byte) this.in.read();
+	private synchronized int getByte() throws IOException {
+		int read = 0xFF;
+		if (in==null) return -1;
+		try {
+			long s1 = System.currentTimeMillis();
+			while (in.available() == 0) {
+				Thread.sleep(10);
+				if (System.currentTimeMillis() - s1 > 100) {
+					return -1;
+				}
+			}
+			read = in.read();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return read;
 	}
 
 	/**
@@ -154,13 +176,21 @@ public class DebugReader implements Runnable {
 	 * @return the corresponding crc checksum
 	 * @throws IOException
 	 */
-	private byte getBytes(byte B[], int num, int init, int offset)
-			throws IOException {
+	private byte getBytes(InputStream in, byte B[], int num, int init,
+			int offset) throws IOException {
+		boolean err = false;
 		byte crc = (byte) init;
 		for (int i = 0; i < num; i++) {
-			B[i + offset] = getByte();
+			int b = getByte();
+			if (b == -1) {
+				err = true;
+				break;
+			}
+			B[i + offset] = (byte) b;
 			crc ^= B[i + offset];
 		}
+		if (err)
+			return crc ^= 0xFF;
 		return crc;
 	}
 
@@ -176,8 +206,9 @@ public class DebugReader implements Runnable {
 	 * @return the corresponding crc checksum
 	 * @throws IOException
 	 */
-	private byte getBytes(byte B[], int num, int init) throws IOException {
-		return getBytes(B, num, init, 0);
+	private byte getBytes(byte B[], int num, int init)
+			throws IOException {
+		return getBytes(in, B, num, init, 0);
 	}
 
 	/**
@@ -230,6 +261,27 @@ public class DebugReader implements Runnable {
 		v ^= b;
 		b = v & 0xFF000000;
 		B[3 + off] = (byte) (b >> 24);
+	}
+
+	public synchronized void setStream(InputStream in) {
+		this.in = in;
+		if (in != null) {
+			System.out.println("new Stream for DebugReader.");
+		} else {
+			System.out.println("Disabled Stream for DebugReader.");
+		}
+		notify();
+	}
+
+	public synchronized void pause() {
+		savedStream = getStream();
+		setStream(null);
+	}
+
+	public synchronized void resume() {
+		setStream(savedStream);
+		savedStream = null;
+		notify();
 	}
 
 }

@@ -160,6 +160,7 @@ public class AokStatusWindow {
 					AokTabGraph atg = new AokTabGraph(aok);
 					AokTabPrefs atp = new AokTabPrefs(aok);
 					AokTabOptions ato = new AokTabOptions(aok);
+                    AokTabMixer atm = new AokTabMixer(aok);
 					// AokTabGPS ate = new AokTabGPS(aok);
 
 					views[v++] = new View("Debug and Config", null, ats);
@@ -168,6 +169,7 @@ public class AokStatusWindow {
 					// views[v++] = new View("GPS", null, ate);
 					views[v++] = new View("Preferences", null, atp);
 					views[v++] = new View("Options", null, ato);
+					views[v++] = new View("Mixer", null, atm);
 
 					/** add the views to the view map */
 					for (int i = 0; i < v; i++) {

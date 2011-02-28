@@ -1,6 +1,7 @@
 package de.schrell.aok;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -12,9 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.concurrent.Semaphore;
-
-//-as import chrriis.dj.nativeswing.NativeSwing;
-import de.schrell.CompileTime;
 
 /**
  * Class Aok represents the status of an Arm-o-Kopter
@@ -35,7 +33,8 @@ public class Aok {
 	public final static int CONFIG_OPTIONS = 13;
 	public final static int CONFIG_CHANNEL_HEIGHT = 60;
 	public final static int CONFIG_CHANNEL_VRATE = 82;
-    public final static int CONFIG_DEBUG_DELAY = 110;
+	public final static int CONFIG_DEBUG_DELAY = 110;
+	public final static int CONFIG_MIXER1 = 111;
 
 	public final static int STATUS_VOLTAGE = 50;
 	public final static int STATUS_GPSFRAMES = 19;
@@ -48,13 +47,14 @@ public class Aok {
 	public final static int STATUS_RX_OK = 34;
 
 	/** VERSION */
-	final String version = "(v0.10 " + new CompileTime().toString() + ")";
+	private final static String version = Aok.class.getPackage()
+			.getImplementationVersion();;
 
 	/** maximal possible state variables */
 	final int STATEMAX = 256;
 
 	/** maximal possible configuration variables */
-	final int CONFIGMAX = 128;
+	final int CONFIGMAX = 192;
 
 	/** number of implemented debug/state values */
 	int statecount = 0;
@@ -75,8 +75,8 @@ public class Aok {
 	/** table with the configuration values */
 	private int AokConfigValues[];
 	/** table with the configuration names */
-	String AokConfigNames[] = new String[CONFIGMAX];
-	int AokConfigNumbers[] = new int[CONFIGMAX];
+	String AokConfigNames[] = new String[1000];
+	int AokConfigNumbers[] = new int[1000];
 	String AokConfigOrderedNames[] = new String[CONFIGMAX * 2];;
 	int AokConfigOrderedNumbers[] = new int[CONFIGMAX * 2];;
 	/** display table for the configuration */
@@ -85,6 +85,8 @@ public class Aok {
 	Hashtable<String, Integer> NamesToNumbers = new Hashtable<String, Integer>();
 	/** get the row from the name */
 	HashMap<String, Integer> NamesToRows = new HashMap<String, Integer>();
+
+	private DebugReader debugReader = null;
 
 	/** view ports */
 	AokStatusWindow asw = null;
@@ -95,6 +97,7 @@ public class Aok {
 	AokTabPrefs atp = null;
 	Configuration config = null;
 	AokTabOptions ato = null;
+	AokTabMixer atm = null;
 
 	/** file io */
 	ConfigFile cf = null;
@@ -237,6 +240,12 @@ public class Aok {
 		graphs = new ArrayList<ScrolledGraph>();
 		config = new Configuration(this);
 		stopreplay = false;
+		debugReader = new DebugReader(this);
+		(new Thread(debugReader)).start();
+	}
+
+	public DebugReader getDebugReader() {
+		return debugReader;
 	}
 
 	/**
@@ -262,33 +271,31 @@ public class Aok {
 		}
 		if (legends == null) {
 			is = Aok.class.getResourceAsStream(legend);
-			legends = new BufferedReader(new InputStreamReader(is));
-			if (legends != null)
+			if (is == null) {
+				System.out.println();
+				System.out.println("Error: legend_debug.txt not found.");
+				System.exit(1);
+			} else {
 				System.out.println("ok.");
+			}
+			legends = new BufferedReader(new InputStreamReader(is));
 		}
-		// continue if file was found
-		if (legends != null) {
-			do {
-				try {
-					legend = legends.readLine();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} // read one
-				if (legend != null) { // if defined set the table value
-					AokStateNames[statecount++] = legend;
-				}
-			} while (legend != null && statecount <= STATEMAX);
+		do {
 			try {
-				legends.close();
+				legend = legends.readLine();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} // read one
+			if (legend != null) { // if defined set the table value
+				AokStateNames[statecount++] = legend;
 			}
-		} else {
-			System.out.println();
-			System.out.println("Error: legend_debug.txt not found.");
-			System.exit(1);
+		} while (legend != null && statecount <= STATEMAX);
+		try {
+			legends.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		// read the legends for the configuration values
@@ -298,6 +305,12 @@ public class Aok {
 		is = null;
 		// try to find the legend file in file system, then in jar
 		try {
+			System.out.println(new File("legend_parameters.txt").getCanonicalPath());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
 			legends = new BufferedReader(new FileReader(legend));
 		} catch (FileNotFoundException e) {
 			System.out.print("INFO: Legend  " + legend
@@ -305,34 +318,34 @@ public class Aok {
 		}
 		if (legends == null) {
 			is = Aok.class.getResourceAsStream(legend);
-			legends = new BufferedReader(new InputStreamReader(is));
-			if (legends != null)
+			if (is == null) {
+				System.out.println();
+				System.out.println("Error: legend_debug.txt not found.");
+				System.exit(1);
+			} else {
 				System.out.println("ok.");
+			}
+			legends = new BufferedReader(new InputStreamReader(is));
 		}
 		// continue if file was found
-		if (legends != null) {
-			do {
-				try {
-					legend = legends.readLine();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} // read one
-				if (legend != null) { // if defined set the table value
-					AokConfigNames[configcount] = legend;
-					NamesToNumbers.put(legend, configcount);
-					configcount++;
-				}
-			} while (legend != null && configcount <= CONFIGMAX);
+		do {
 			try {
-				legends.close();
+				legend = legends.readLine();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} // read one
+			if (legend != null) { // if defined set the table value
+				AokConfigNames[configcount] = legend;
+				NamesToNumbers.put(legend, configcount);
+				configcount++;
 			}
-		} else {
-			System.out.println("Error: legend_parameters.txt not found.");
-			System.exit(1);
+		} while (legend != null && configcount <= CONFIGMAX);
+		try {
+			legends.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		// read the ordered legends for the configuration values
@@ -349,76 +362,75 @@ public class Aok {
 		}
 		if (legends == null) {
 			is = Aok.class.getResourceAsStream(legend);
-			legends = new BufferedReader(new InputStreamReader(is));
-			if (legends != null)
+			if (is == null) {
+				System.out.println();
+				System.out.println("Error: legend_debug.txt not found.");
+				System.exit(1);
+			} else {
 				System.out.println("ok.");
+			}
+			legends = new BufferedReader(new InputStreamReader(is));
 		}
 		// continue if file was found
-		if (legends != null) {
-			do {
-				try {
-					legend = legends.readLine();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} // read one
-				if (legend != null) { // if defined set the table value
-					AokConfigOrderedNames[legendcount] = legend;
-					AokConfigOrderedNumbers[legendcount] = -1;
-					char first;
-					try {
-						first = legend.charAt(0);
-					} catch (IndexOutOfBoundsException e) {
-						first = ' ';
-					}
-					if (first != ' ' && first != '*') {
-						Integer num = NamesToNumbers.get(legend);
-						AokConfigOrderedNumbers[legendcount] = num;
-						AokConfigNumbers[num] = legendcount;
-						if (num == null) {
-							System.out
-									.println("ERROR: config variable "
-											+ legend
-											+ " in ordered list, but not in unordered.");
-							System.exit(1);
-						}
-						NamesToRows.put(legend, legendcount);
-					} else {
-						if (first == '*')
-							AokConfigOrderedNames[legendcount] = "<html><b>"
-									+ legend.substring(1) + "</b></html>";
-					}
-					legendcount++;
-				}
-			} while (legend != null);
+		do {
 			try {
-				legends.close();
+				legend = legends.readLine();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-
-			AokConfigOrderedNames[legendcount] = "";
-			AokConfigOrderedNumbers[legendcount] = -1;
-			legendcount++;
-			AokConfigOrderedNames[legendcount] = "<html><b>Unsorted</b></html>";
-			AokConfigOrderedNumbers[legendcount] = -1;
-			NamesToRows.put("*Unsorted", legendcount);
-			legendcount++;
-			for (int i = 0; i < configcount; i++) {
-				String name = AokConfigNames[i];
-				if (NamesToRows.get(name) == null) {
-					AokConfigNumbers[i] = legendcount;
-					AokConfigOrderedNames[legendcount] = name;
-					AokConfigOrderedNumbers[legendcount] = i;
-					NamesToRows.put(name + " (autoadd)", legendcount);
-					legendcount++;
+			} // read one
+			if (legend != null) { // if defined set the table value
+				AokConfigOrderedNames[legendcount] = legend;
+				AokConfigOrderedNumbers[legendcount] = -1;
+				char first;
+				try {
+					first = legend.charAt(0);
+				} catch (IndexOutOfBoundsException e) {
+					first = ' ';
 				}
+				if (first != ' ' && first != '*'
+						&& !legend.equalsIgnoreCase("unused")) {
+					Integer num = NamesToNumbers.get(legend);
+					if (num == null) {
+						System.out.println("ERROR: config variable " + legend
+								+ " in ordered list, but not in unordered.");
+						System.exit(1);
+					}
+					// System.out.println("legendcount="+legendcount+" num="+num);
+					AokConfigOrderedNumbers[legendcount] = num;
+					AokConfigNumbers[num] = legendcount;
+					NamesToRows.put(legend, legendcount);
+				} else {
+					if (first == '*')
+						AokConfigOrderedNames[legendcount] = "<html><b>"
+								+ legend.substring(1) + "</b></html>";
+				}
+				legendcount++;
 			}
+		} while (legend != null);
+		try {
+			legends.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-		} else {
-			System.out.println("Error: legend_parameters.txt not found.");
-			System.exit(1);
+		AokConfigOrderedNames[legendcount] = "";
+		AokConfigOrderedNumbers[legendcount] = -1;
+		legendcount++;
+		AokConfigOrderedNames[legendcount] = "<html><b>Unsorted</b></html>";
+		AokConfigOrderedNumbers[legendcount] = -1;
+		NamesToRows.put("*Unsorted", legendcount);
+		legendcount++;
+		for (int i = 0; i < configcount; i++) {
+			String name = AokConfigNames[i];
+			if (NamesToRows.get(name) == null) {
+				AokConfigNumbers[i] = legendcount;
+				AokConfigOrderedNames[legendcount] = name;
+				AokConfigOrderedNumbers[legendcount] = i;
+				NamesToRows.put(name + " (autoadd)", legendcount);
+				legendcount++;
+			}
 		}
 
 		// read the tool tips for the configuration values
@@ -709,12 +721,8 @@ public class Aok {
 	 * @return true if debug mode is on, false otherwise
 	 * @throws InterruptedException
 	 */
-	public boolean getDebug() throws InterruptedException {
-		boolean v;
-		ssem.acquire();
-		v = debug;
-		ssem.release();
-		return v;
+	public synchronized boolean getDebug() {
+		return debug;
 	}
 
 	/**
@@ -725,10 +733,8 @@ public class Aok {
 	 *            true if debug mode is on, false otherwise
 	 * @throws InterruptedException
 	 */
-	public void setDebug(boolean debug) throws InterruptedException {
-		ssem.acquire();
+	public void setDebug(boolean debug) {
 		this.debug = debug;
-		ssem.release();
 	}
 
 	public String getConfigToolTip(int n) {
@@ -752,7 +758,7 @@ public class Aok {
 	 */
 	public static void main(String[] args) throws Exception {
 
-//-as		NativeSwing.initialize();
+		// -as NativeSwing.initialize();
 		// MultiLineToolTipUI.setMaximumWidth(500);
 		// MultiLineToolTipUI.initialize();
 		// ToolTipManager.sharedInstance().setDismissDelay(200000);

@@ -25,9 +25,9 @@ public class LogReplay implements Runnable {
 			// disable the debug mode of the Aok which would interfere with the
 			// log replay
 			while (aok.getDebug()) {
-				aok.aco.sc.acquire();
+//				aok.aco.sc.acquire();
 				aok.aco.command(aok.CMD_DEBUG_OFF);
-				aok.aco.sc.release();
+//				aok.aco.sc.release();
 				aok.setDebug(false);
 				aok.asb.debug.setSelected(false);
 				Thread.sleep(200); // wait a moment for the reaction
