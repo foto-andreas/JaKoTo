@@ -34,8 +34,7 @@ public class ConfigFile {
 			System.out.printf("Error: file '%s' not found\n", filename);
 			return false;
 		}
-		// continue if file was found
-		if (in != null) {
+		{
 			String defline = null, valline = null;
 			int nr = 0;
 			do {
@@ -65,8 +64,6 @@ public class ConfigFile {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else {
-			System.out.println("Error: file not readable");
 		}
 		return true;
 	}
@@ -84,8 +81,7 @@ public class ConfigFile {
 					filename);
 			return false;
 		}
-		// continue if file was found
-		if (out != null) {
+		{
 			for (int nr = 0; nr < aok.configcount; nr++) {
 				String valStr = "";
 				if (!onlySelected || aok.act.isConfigSelected(aok.convertConfigToView(nr))) {
@@ -105,8 +101,6 @@ public class ConfigFile {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else {
-			System.out.println("Error: file not writeable");
 		}
 		return true;
 	}

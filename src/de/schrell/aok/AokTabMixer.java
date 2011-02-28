@@ -23,7 +23,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class AokTabMixer extends JPanel {
 
-    static int motors = 12;
+	private static final long serialVersionUID = -7759288790707801433L;
+	static int motors = 12;
     static int perLine = 4;
     Aok aok = null;
     JSpinner[] spinner = new JSpinner[motors * perLine];

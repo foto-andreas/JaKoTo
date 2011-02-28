@@ -35,11 +35,10 @@ public class MultiLineToolTipUI extends BasicToolTipUI {
 
 	static MultiLineToolTipUI singleton = new MultiLineToolTipUI();
 
-	@SuppressWarnings("unchecked")
 	public static void initialize() {
 		// don't hardcode class name
 		String key = "ToolTipUI";
-		Class cls = singleton.getClass();
+		Class<? extends BasicToolTipUI> cls = singleton.getClass();
 		String name = cls.getName();
 		UIManager.put(key, name);
 		UIManager.put(name, cls);
