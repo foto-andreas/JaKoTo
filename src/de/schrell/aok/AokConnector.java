@@ -826,9 +826,9 @@ public class AokConnector {
 		}
 		aok.getDebugReader().pause();
 		System.out.print("[");
-		int d[] = { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF };
+		int d[] = { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF };
 		if (aok.ast.isStatusSelected()) {
-			d[0] = d[1] = d[2] = d[3] = 0x00000000;
+			d[0] = d[1] = d[2] = d[3] = d[4] = 0x00000000;
 			for (int i = 0; i < 32; i++) {
 				if (aok.ast.isStatusSelected(i)) {
 					d[0] |= 1 << i;
@@ -849,6 +849,11 @@ public class AokConnector {
 					d[3] |= 1 << (i - 96);
 				}
 			}
+			for (int i = 128; i < 160; i++) {
+				if (aok.ast.isStatusSelected(i)) {
+					d[4] |= 1 << (i - 128);
+				}
+			}
 		}
 		/** disable debug-value-00, otherwise it would come twice */
 		d[0] &= 0xFFFFFFFF | 1;
@@ -856,9 +861,10 @@ public class AokConnector {
 		aok.setAokConfig(aok.convertConfigToView(93), d[1]);
 		aok.setAokConfig(aok.convertConfigToView(94), d[2]);
 		aok.setAokConfig(aok.convertConfigToView(95), d[3]);
+		aok.setAokConfig(aok.convertConfigToView(96), d[4]);
 
 		try {
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 5; i++) {
 				byte B[] = new byte[7];
 				B[0] = aok.CMD_WRITECONF;
 				B[1] = (byte) (92 + i);
