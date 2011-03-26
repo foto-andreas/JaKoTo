@@ -237,10 +237,12 @@ public class AokConnector {
 				}
 				command(aok.CMD_READCONF); // send command
 				command((byte) i); // send the configuration value number
+				getByte(in);
+				int pnum = getByte(in);
 				byte crc = getBytes(in, B, 5, 0); // read the value and the crc
 				// checksum
 				// set the configuration value if the crc was correct
-				if (crc == 0x00) {
+				if (pnum == i && crc == 0x00) {
 					config = bytesToInt(B); // calculate the configuration value
 					if (check) {
 						if (aok.getAokConfig(i) != config) {

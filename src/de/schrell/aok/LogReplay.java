@@ -23,15 +23,8 @@ public class LogReplay implements Runnable {
 		// commands and answers
 		try {
 			// disable the debug mode of the Aok which would interfere with the
-			// log replay
-			while (aok.getDebug()) {
-//				aok.aco.sc.acquire();
-				aok.aco.command(aok.CMD_DEBUG_OFF);
-//				aok.aco.sc.release();
-				aok.setDebug(false);
-				aok.asb.debug.setSelected(false);
-				Thread.sleep(200); // wait a moment for the reaction
-			}
+			// log replay			
+			aok.aco.disconnect();
 			RandomAccessFile f = new RandomAccessFile(filename, "r");
 			long flen = f.length();
 			aok.asb.acquireProgressBar(0, (int) (flen >> 8));
@@ -77,16 +70,12 @@ public class LogReplay implements Runnable {
 					break;
 			}
 			f.close();
-			aok.setDebug(false);
 			aok.asb.debug.setEnabled(true);
 			aok.asb.connect.setEnabled(true);
 			aok.asb.log.setEnabled(true);
 			aok.asb.reset.setEnabled(true);
 			aok.asb.releaseProgressBar();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

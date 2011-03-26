@@ -31,8 +31,12 @@ public class BinReplay implements Runnable {
 		    } else {
 		    	System.out.println("InputStream for '" + filename + "' will be opened...");
 		    }
-		    InputStream is = new FileInputStream(new File(filename));
+		    File file = new File(filename);
+		    InputStream is = new FileInputStream(file);
+		    long flen = file.length();
+			aok.asb.acquireProgressBar(0, (int) (flen >> 8));
 		    aok.getDebugReader().setStream(is);
+		    aok.asb.releaseProgressBar();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

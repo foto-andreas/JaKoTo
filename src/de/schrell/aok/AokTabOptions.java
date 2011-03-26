@@ -10,31 +10,32 @@ public class AokTabOptions extends Options {
 		super(aok);
 		aok.ato = this;
 		
-		setText(0,"OPTIONS_INV_ROLL");
-		setText(1,"OPTIONS_INV_NICK");
-		setText(2,"OPTIONS_INV_YAW");
-		setText(3,"OPTIONS_X_MODE");
-		setText(4,"OPTIONS_RX_PULLUP (r)");
-		setText(5,"OPTIONS_AUX_LEDS");
-		setText(6,"OPTIONS_MOTORS_OFF");
-		setText(7,"unused MIX_6_RING");
-		setText(8,"unused MIX_6_H (ni)");
-		setText(9,"unused MIX_8_RING");
-		setText(10,"unused MIX_8_H");
-		setText(11,"unused MIX_10_RING (ni)");
-		setText(12,"unused MIX_10_H");
-		setText(13,"unused MIX_Y6");
-		setText(14,"unused MIX_X8");
-		setText(15,"OPTIONS_MOTORSPINUP");
-		setText(16,"OPTIONS_SPEKTRUM (r)");
-		setText(17,"OPTIONS_ACT (r)");
-		setText(18,"OPTIONS_S3DSUM (r)");
-		setText(19,"OPTIONS_ACC_ROTATED");
-		setText(20,"OPTIONS_CH_RX_LOST");
-		setText(21,"unused MIX_84_JOERG");
-		setText(22,"OPTIONS_GPS_DEBUG_BEEP");
-		setText(23,"OPTIONS_SETTINGSWITCH_ROLL_NICK");
-		setText(24,"OPTIONS_HMC5843_NO_MM3");
+		setText(0,"invert roll");
+		setText(1,"invert nick");
+		setText(2,"invert yaw");
+		setText(3,"X-Mode (new front is left front)");
+		setText(4,"Pullup on receiver pin (r)");
+		setText(5,"LEDs on AUX1..4");
+		setText(6,"Motors always off for debugging");
+		setText(7,"Debug always on");
+		setText(8,"Inflight parameter change");
+		setText(9,"board version 4 (r)");
+		setText(10,"turn aft to home before CH");
+		setText(11,"Pitch low voltage warning");
+		setText(12,"ACT S3D composite signal V2 (r)");
+		setText(13,"SRF-08 (r)");
+		setText(14,"Tricopter servo (instead of roll servo)");
+		setText(15,"Spinup motors one by one");
+		setText(16,"Spektrum receiver (r)");
+		setText(17,"ACT DSL receiver (r)");
+		setText(18,"ACT S3D composite signal (r)");
+		setText(19,"ACC sensor rotated by 90°");
+		setText(20,"CH when radio lost");
+		setText(21,"use PID ramp");
+		setText(22,"GPS debug beeping");
+		setText(23,"Settingswitching with roll/nick");
+		setText(24,"HMC5843 no MM3 (r)");
+		setText(25,"Heading Hold mode");
 
 	    SwingUtilities.invokeLater(new Runnable() {
 	        public void run() {

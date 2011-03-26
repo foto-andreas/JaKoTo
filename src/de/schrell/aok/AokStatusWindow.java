@@ -181,8 +181,8 @@ public class AokStatusWindow {
 					}
 					/** create the root window inside our JFrame */
 					rootWindow = DockingUtil.createRootWindow(viewMap, true);
-					frame = new JFrame("Arm-o-Kopter Configuration"
-							+ " $Revision: 20 $ " + aok.getVersion());
+					frame = new JFrame("Arm-o-Kopter Configuration v"
+							+ aok.getVersion());
 					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 					frame.setPreferredSize(new Dimension(1000, 1100));
 					frame.setIconImage(img);

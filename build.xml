@@ -2,7 +2,7 @@
 	
 	<property name="MyApp" value="JaKoTo" />
 
-	<property name="version.num" value="0.12" />
+	<property name="version.num" value="0.13" />
 
 	<buildnumber file="build.num" />
 
@@ -46,11 +46,11 @@
 		
 		<zip destfile="dist/${MyApp}-Binary.zip">
 			<fileset dir="." includes="${MyApp}.jar" />
-			<fileset dir="." includes="legend*" />
+			<fileset dir="src/de/schrell/aok" includes="legend*" />
 			<fileset dir="." includes="LICENSE.txt" />
-			<fileset dir="." includes="JaKoTo.bat" />
-			<fileset dir="." includes="JaKoTo.sh" />
-			<fileset dir="." includes="lib/**" />
+			<fileset dir="JaKoTo" includes="JaKoTo.bat" />
+			<fileset dir="JaKoTo" includes="JaKoTo.sh" />
+			<fileset dir="JaKoTo" includes="lib/**" />
 		</zip>
 
 	</target>

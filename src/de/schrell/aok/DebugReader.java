@@ -54,9 +54,13 @@ public class DebugReader implements Runnable {
 					System.out.println("\nwaking up DebugReader...");
 				}
 				InputStream in = getStream();
+				long bytesRead = 0;
 				while (((in instanceof FileInputStream) && (in.available() > 0))
 						|| aok.aco.connected) {
-					readValues(in);
+					bytesRead += readValues(in);
+					if (in instanceof FileInputStream) {
+						aok.asb.setProgressBarVal((int) (bytesRead >> 8));
+					}
 				}
 				if (in instanceof FileInputStream) {
 					in.close();
@@ -69,7 +73,7 @@ public class DebugReader implements Runnable {
 		return;
 	}
 
-	private void readValues(InputStream in) throws IOException,
+	private int readValues(InputStream in) throws IOException,
 			InterruptedException {
 		byte B[] = new byte[6];
 		int b;
@@ -78,11 +82,11 @@ public class DebugReader implements Runnable {
 			int nr = 0;
 			b = getByte(); // get the info byte
 			if (b == -1)
-				return;
+				return 0;
 			if (b == 0x1C) { // perhaps the start of a debug entry
 				nr = getByte(); // get number of debug entry
 				if (nr == -1)
-					return;
+					return 1;
 				byte crc = getBytes(B, 5, nr); // get value and crc
 				if (crc == 0x00) { // check crc sum
 					aok.setDebug(true);
@@ -135,7 +139,7 @@ public class DebugReader implements Runnable {
 			if (!aok.getDebug())
 				lastC = 0;
 		}
-		return;
+		return 5;
 	}
 
 	/**
@@ -279,8 +283,8 @@ public class DebugReader implements Runnable {
 	}
 
 	public synchronized void resume() {
-		setStream(savedStream);
-		savedStream = null;
+		setStream(this.savedStream);
+		this.savedStream = null;
 		notify();
 	}
 
