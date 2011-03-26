@@ -16,7 +16,7 @@
 	</path>
 
 	<target name="compile">
-		<javac srcdir="/home/andreas/JaKoTo-Source/JaKoTo/src" destdir="bin">
+		<javac srcdir="src" destdir="bin">
 			<classpath refid="compile.classpath" />
 		</javac>
 	</target>
