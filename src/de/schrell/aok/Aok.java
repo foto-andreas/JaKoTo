@@ -45,6 +45,10 @@ public class Aok {
 	public final static int STATUS_STICKYAW = 43;
 	public final static int STATUS_HOMEHEADING = 33; // ???
 	public final static int STATUS_RX_OK = 34;
+	
+	public final static int STATUS_MAG_X_RAW = 110;
+	public final static int STATUS_MAG_Y_RAW = 111;
+	public final static int STATUS_MAG_Z_RAW = 112;
 
 	/** VERSION */
 	private final static String version = Aok.class.getPackage()
@@ -98,6 +102,7 @@ public class Aok {
 	Configuration config = null;
 	AokTabOptions ato = null;
 	AokTabMixer atm = null;
+	AokTabMagnetics atmag = null;
 
 	/** file io */
 	ConfigFile cf = null;

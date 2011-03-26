@@ -120,6 +120,15 @@ public class DebugReader implements Runnable {
 						// System.out.printf("XX=%d\n", nr);
 						aok.setAokState(nr, value);
 					}
+					if (nr == Aok.STATUS_MAG_X_RAW) {
+						aok.atmag.updateRaw(0,value);
+					}
+					if (nr == Aok.STATUS_MAG_Y_RAW) {
+						aok.atmag.updateRaw(1,value);
+					}
+					if (nr == Aok.STATUS_MAG_Z_RAW) {
+						aok.atmag.updateRaw(2,value);
+					}
 					// update the debug status if the crc checksum was correct
 					if (nr == 0) {
 						aok.setDebug(true);

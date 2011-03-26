@@ -2,7 +2,7 @@
 	
 	<property name="MyApp" value="JaKoTo" />
 
-	<property name="version.num" value="0.13" />
+	<property name="version.num" value="0.14" />
 
 	<buildnumber file="build.num" />
 

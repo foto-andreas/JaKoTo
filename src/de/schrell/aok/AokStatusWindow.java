@@ -161,6 +161,7 @@ public class AokStatusWindow {
 					AokTabPrefs atp = new AokTabPrefs(aok);
 					AokTabOptions ato = new AokTabOptions(aok);
                     AokTabMixer atm = new AokTabMixer(aok);
+                    AokTabMagnetics atmag = new AokTabMagnetics(aok);
 					// AokTabGPS ate = new AokTabGPS(aok);
 
 					views[v++] = new View("Debug and Config", null, ats);
@@ -170,6 +171,7 @@ public class AokStatusWindow {
 					views[v++] = new View("Preferences", null, atp);
 					views[v++] = new View("Options", null, ato);
 					views[v++] = new View("Mixer", null, atm);
+					views[v++] = new View("Magnetics", null, atmag);
 
 					/** add the views to the view map */
 					for (int i = 0; i < v; i++) {
@@ -181,8 +183,7 @@ public class AokStatusWindow {
 					}
 					/** create the root window inside our JFrame */
 					rootWindow = DockingUtil.createRootWindow(viewMap, true);
-					frame = new JFrame("Arm-o-Kopter Configuration v"
-							+ aok.getVersion());
+					frame = new JFrame("Arm-o-Kopter Configuration v" + aok.getVersion());
 					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 					frame.setPreferredSize(new Dimension(1000, 1100));
 					frame.setIconImage(img);
