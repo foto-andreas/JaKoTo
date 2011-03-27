@@ -742,6 +742,7 @@ public class AokConnector {
 			return;
 		}
 		// sc.acquire();
+		debugOff();
 		command(aok.CMD_RESET);
 		// sc.release();
 		aok.ast.setFreq(null);
@@ -901,6 +902,7 @@ public class AokConnector {
 			try {
 				command(aok.CMD_DEBUG_OFF);
 				Thread.sleep(250); // wait a moment for the reaction
+				command(aok.CMD_DEBUG_OFF);
 				while (in.available() > 0) {
 					in.skip(in.available());
 					Thread.sleep(100);

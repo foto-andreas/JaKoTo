@@ -189,7 +189,7 @@ public class DebugReader implements Runnable {
 	 * @return the corresponding crc checksum
 	 * @throws IOException
 	 */
-	private byte getBytes(InputStream in, byte B[], int num, int init,
+	private synchronized byte getBytes(InputStream in, byte B[], int num, int init,
 			int offset) throws IOException {
 		boolean err = false;
 		byte crc = (byte) init;
@@ -219,7 +219,7 @@ public class DebugReader implements Runnable {
 	 * @return the corresponding crc checksum
 	 * @throws IOException
 	 */
-	private byte getBytes(byte B[], int num, int init)
+	private synchronized byte getBytes(byte B[], int num, int init)
 			throws IOException {
 		return getBytes(in, B, num, init, 0);
 	}
