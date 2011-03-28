@@ -743,7 +743,8 @@ public class AokConnector {
 		}
 		// sc.acquire();
 		debugOff();
-		command(aok.CMD_RESET);
+  		command(aok.CMD_RESET);
+		aok.getDebugReader().setStream(in);
 		// sc.release();
 		aok.ast.setFreq(null);
 		System.out.println("AOK reset");
