@@ -41,7 +41,7 @@
 		</jar>
 		
 		<zip destfile="dist/${MyApp}-Source.zip">
-			<fileset dir="." excludes=".*/**" />
+			<fileset dir="." />
 		</zip>
 		
 		<zip destfile="dist/${MyApp}-Binary.zip">
@@ -50,6 +50,7 @@
 			<fileset dir="." includes="LICENSE.txt" />
 			<fileset dir="JaKoTo" includes="JaKoTo.bat" />
 			<fileset dir="JaKoTo" includes="JaKoTo.sh" />
+			<fileset dir="JaKoTo" includes="getTooltipsFromWeb.pl" />
 			<fileset dir="JaKoTo" includes="lib/**" />
 		</zip>
 

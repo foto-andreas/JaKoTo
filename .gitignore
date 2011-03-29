@@ -1,13 +1,7 @@
-JaKoTo.tar.gz
 JaKoTo/AOK-ParmDoku/*
-JaKoTo/JaKoTo.jar
-JaKoTo/README.TXT
-JaKoTo/LICENSE.txt
-build/*
+JaKoTo/lib
 dist/*
-manifest.mf
 *.bak
-build-before-profiler.xml
 bin/*
 JaKoTo.jar
 *~
