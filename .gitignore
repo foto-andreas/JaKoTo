@@ -6,12 +6,8 @@ JaKoTo/LICENSE.txt
 build/*
 dist/*
 manifest.mf
-src/de/schrell/CompileTime.java
 *.bak
 build-before-profiler.xml
 bin/*
-.classpath
-.project
-.settings
 JaKoTo.jar
 *~
