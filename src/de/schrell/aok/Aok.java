@@ -47,6 +47,9 @@ public class Aok {
 	public static final int CONFIG_MAG_Y_GAS_SLOPE = 136;
 	public static final int CONFIG_MAG_Z_GAS_SLOPE = 137;
 
+	public static final int CONFIG_MM3_X_AMP = 0;
+	public static final int CONFIG_MM3_X_OFF = 0;
+
 	public final static int STATUS_VOLTAGE = 50;
 	public final static int STATUS_GPSFRAMES = 19;
 	public final static int STATUS_GPSFIX = 20;

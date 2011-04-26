@@ -33,10 +33,10 @@ public class AutoMagnetics implements Runnable {
 				setOurDebugValues();
 				// read our target values
 				System.out.println("\nreading target values...");
-				MeanStatus h1 = new MeanStatus(aok, Aok.STATUS_MM3HEADING, 200);
-				MeanStatus rX = new MeanStatus(aok, Aok.STATUS_MM3_X, 200);
-				MeanStatus rY = new MeanStatus(aok, Aok.STATUS_MM3_Y, 200);
-				MeanStatus rZ = new MeanStatus(aok, Aok.STATUS_MM3_Z, 200);
+				MeanStatus h1 = new MeanStatus(aok, Aok.STATUS_MM3HEADING, 100);
+				MeanStatus rX = new MeanStatus(aok, Aok.STATUS_MM3_X, 100);
+				MeanStatus rY = new MeanStatus(aok, Aok.STATUS_MM3_Y, 100);
+				MeanStatus rZ = new MeanStatus(aok, Aok.STATUS_MM3_Z, 100);
 				int headingMotorsOff = h1.getMean();
 				int rawXMotorsOff = rX.getMean();
 				int rawYMotorsOff = rY.getMean();
@@ -48,11 +48,12 @@ public class AutoMagnetics implements Runnable {
 				System.out.printf("mean Z           = %d\n", rawZMotorsOff);
 				// starting up motors
 				System.out.println("\nstarting motors...");
-				aok.motorTest.start();
-				for (int motVal = minGas; motVal <= gasToCheck; motVal++) {
-					aok.motorTest.setMotor(-1, motVal);
-					Thread.sleep(100);
-				}
+				new MyDialog("Start Motors", "Please start the motors now", "ok", true).show();
+//				aok.motorTest.start();
+//				for (int motVal = minGas; motVal <= gasToCheck; motVal++) {
+//					aok.motorTest.setMotor(-1, motVal);
+//					Thread.sleep(100);
+//				}
 				System.out.println("\nmotors now running at test values.");
 				h1.restart();
 				rX.restart();
@@ -67,17 +68,6 @@ public class AutoMagnetics implements Runnable {
 				System.out.printf("mean Y on        = %d\n", rawYMotorsOn);
 				System.out.printf("mean Z on        = %d\n", rawZMotorsOn);
 
-				System.out.println("\noptimizing x-axis...");
-				int slopeX = optimize(rawXMotorsOff, Aok.STATUS_MM3_X,
-						Aok.CONFIG_MAG_X_GAS_SLOPE);
-				int rawXMotorsOnAfterX = rX.getMean();
-				int headingMotorsOnAfterX = h1.getMean();
-				System.out.println("\nafter X:");
-				System.out.printf("mean heading     = %d\n",
-						headingMotorsOnAfterX);
-				System.out
-						.printf("mean X           = %d\n", rawXMotorsOnAfterX);
-
 				System.out.println("\noptimizing y-axis...");
 				int slopeY = optimize(rawYMotorsOff, Aok.STATUS_MM3_Y,
 						Aok.CONFIG_MAG_Y_GAS_SLOPE);
@@ -88,6 +78,17 @@ public class AutoMagnetics implements Runnable {
 						headingMotorsOnAfterY);
 				System.out
 						.printf("mean Y           = %d\n", rawYMotorsOnAfterY);
+
+				System.out.println("\noptimizing x-axis...");
+				int slopeX = optimize(rawXMotorsOff, Aok.STATUS_MM3_X,
+						Aok.CONFIG_MAG_X_GAS_SLOPE);
+				int rawXMotorsOnAfterX = rX.getMean();
+				int headingMotorsOnAfterX = h1.getMean();
+				System.out.println("\nafter X:");
+				System.out.printf("mean heading     = %d\n",
+						headingMotorsOnAfterX);
+				System.out
+						.printf("mean X           = %d\n", rawXMotorsOnAfterX);
 
 				System.out.println("\noptimizing z-axis...");
 				int slopeZ = optimize(rawZMotorsOff, Aok.STATUS_MM3_Z,
@@ -100,12 +101,13 @@ public class AutoMagnetics implements Runnable {
 				System.out
 						.printf("mean Z           = %d\n", rawZMotorsOnAfterZ);
 
-				System.out.println("\nstopping motors...");
-				for (int motVal = gasToCheck; motVal >= minGas; motVal--) {
-					aok.motorTest.setMotor(-1, motVal);
-					Thread.sleep(100);
-				}
-				aok.motorTest.stop();
+				new MyDialog("Stop Motors", "Please stop the motors now", "ok", true).show();
+//				System.out.println("\nstopping motors...");
+//				for (int motVal = gasToCheck; motVal >= minGas; motVal--) {
+//					aok.motorTest.setMotor(-1, motVal);
+//					Thread.sleep(100);
+//				}
+//				aok.motorTest.stop();
 				System.out.println("\nmotors stopped...");
 				Thread.sleep(1000);
 				restoreDebugValues(oldDebugs);
@@ -135,10 +137,10 @@ public class AutoMagnetics implements Runnable {
 
 	private int optimize(int rawTarget, int statusNumber, int configNumber)
 			throws InterruptedException {
-		MeanStatus ms = new MeanStatus(aok, statusNumber, 200);
+		MeanStatus ms = new MeanStatus(aok, statusNumber, 100);
 		int bestDiff;
 		int best = 0;
-		int[] steps = { 2000, 200, 20, 2, 1 };
+		int[] steps = { 1000, 100, 10, 1 };
 
 		int start = 0;
 		for (int step : steps) {
@@ -146,7 +148,7 @@ public class AutoMagnetics implements Runnable {
 			int s = start;
 			int diff;
 			best = start;
-			int MAX = start + 5 * step;
+			int MAX = start + 10 * step;
 			do {
 				writeSingleConfig(configNumber, s);
 				diff = getDiff(rawTarget, ms);
@@ -159,7 +161,7 @@ public class AutoMagnetics implements Runnable {
 				s += step;
 			} while (s <= MAX && bestDiff > 0);
 			s = start - step;
-			int MIN = start - 5 * step;
+			int MIN = start - 10 * step;
 			do {
 				writeSingleConfig(configNumber, s);
 				diff = getDiff(rawTarget, ms);
@@ -173,6 +175,7 @@ public class AutoMagnetics implements Runnable {
 			} while (s >= MIN && bestDiff > 0);
 			System.out.printf("\nrawTarget=%d bestDiff=%d best=%d\n",
 					rawTarget, bestDiff, best);
+			start = best;
 		}
 		return best;
 	}

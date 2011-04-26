@@ -6,6 +6,7 @@ public class MotorTest implements Runnable {
 
 	private Aok aok = null;
 	private int motorCount = 0;
+	private int pitch = 0;
 	private byte[] motorValues = null;
 	private boolean running = false;
 
@@ -28,10 +29,13 @@ public class MotorTest implements Runnable {
 		while (true) {
 			if (running) {
 				try {
-					for (byte n = 0; n < motorCount; n++) {
-						aok.aco.motorTest(n, motorValues[n]);
-					}
-					Thread.sleep(150);
+					if (pitch>0) 
+						aok.aco.joyStick(0, 0, 0, pitch, 1000);
+					else
+						for (byte n = 0; n < motorCount; n++) {
+							aok.aco.motorTest(n, motorValues[n]);
+						}
+					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					break;
 				} catch (IOException e) {
@@ -56,6 +60,10 @@ public class MotorTest implements Runnable {
 				motorValues[motor] = (byte) value;
 			}
 		}
+	}
+	
+	public synchronized void setPitch(int pitch) {
+		this.pitch = pitch;
 	}
 	
 	public synchronized void start() {

@@ -129,10 +129,10 @@ public class AokTabMotorTest extends JScrollPane {
 				public void stateChanged(ChangeEvent event) {
 					int value = MotSlider.this.getValue();
 					if (mot == MOT_ANZ) {
-						for (int i=0; i<MOT_ANZ; i++) {
-							rsls[i].setValue(value);
-						}
+						motorTest.clear();
+						motorTest.setPitch(value);
 					} else {
+						motorTest.setPitch(0);
 						motorTest.setMotor(mot, value);
 					}
 				}

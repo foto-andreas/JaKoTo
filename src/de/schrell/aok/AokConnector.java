@@ -728,6 +728,25 @@ public class AokConnector {
 	}
 
 	/**
+	 * converts a short value into a byte array
+	 * 
+	 * @param B
+	 *            the byte array
+	 * @param v
+	 *            the integer value
+	 * @param off
+	 *            the offset into the byte array
+	 */
+	private void shortToBytes(byte[] B, short v, int off) {
+		int b;
+		b = v & 0x000000FF;
+		B[0 + off] = (byte) b;
+		v ^= b;
+		b = v & 0x0000FF00;
+		B[1 + off] = (byte) (b >> 8);
+	}
+
+	/**
 	 * calculates a xor crc value for some bytes.
 	 * 
 	 * @param B
@@ -848,6 +867,27 @@ public class AokConnector {
 		command(c);
 		command((byte)value);
 		command((byte)(c^value));
+	}
+	
+	public void joyStick(int roll, int nick, int yaw, int pitch, int expiry) {
+		byte[] B = new byte[12];
+		B[0] = 0x53;
+		shortToBytes(B,(short)roll,1);
+		shortToBytes(B,(short)nick,3);
+		shortToBytes(B,(short)yaw,5);
+		shortToBytes(B,(short)pitch,7);
+		shortToBytes(B,(short)expiry,9);
+		B[11] = crc(B,1,10,0);
+		for (int i=0; i<12; i++) {
+			System.out.printf("%02X ", B[i]);
+		}
+		System.out.println();
+		try {
+			command(B);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	/**
