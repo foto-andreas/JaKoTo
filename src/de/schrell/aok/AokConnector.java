@@ -36,7 +36,8 @@ public class AokConnector {
 	// Semaphore sc = new Semaphore(1);
 	Thread disconThread = null;
 	boolean inshutdown = false;
-
+	boolean info = true;
+	
 	/**
 	 * Create an instance and wire the necessary instances of other classes
 	 * 
@@ -186,6 +187,15 @@ public class AokConnector {
 	public void readConfigFromAok(boolean check) {
 		(new Thread(new ReadConfigFromAok(check))).start();
 	}
+	
+	public void readConfigFromAokSync() {
+		try {
+			readConfigFromAokInternal(false);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * read all configuration values from the Aok and import them into the
@@ -253,17 +263,17 @@ public class AokConnector {
 											aok.getAokConfig(i), config);
 							aok.asb.checkconf.setForeground(Color.red);
 							aok.asb.checkconf.repaint();
-							System.out.print('X');
+							if (info) System.out.print('X');
 						} else {
-							System.out.print('O');
+							if (info) System.out.print('O');
 						}
 					} else {
 						aok.act.setConfigAt(aok.convertConfigToView(i), config);
-						System.out.print('O');
+						if (info) System.out.print('O');
 					}
 					aok.asb.setProgressBarVal(count++); // update the status bar
 				} else {
-					System.out.print('E');
+					if (info) System.out.print('E');
 					/*
 					 * System.out.printf(
 					 * "CRC-Error (RCFG):   %03d %02x %02x %02x %02x >> %02x != %02x\n"
@@ -346,9 +356,6 @@ public class AokConnector {
 			return;
 		}
 
-		// config values byte field
-		byte B[] = new byte[7];
-
 		// check whether there are selected rows in in the configuration table
 		boolean writeall = !aok.act.isConfigSelected();
 
@@ -372,23 +379,16 @@ public class AokConnector {
 		for (int i = 0; i < aok.getAokConfigCount(); i++) {
 			if (writeall
 					|| aok.act.isConfigSelected(aok.convertConfigToView(i))) {
-				int config = aok.getAokConfig(i); // the actual configuration
-				aok.setAokConfig(i, config); // the actual configuration
-				// value
-				B[0] = aok.CMD_WRITECONF;
-				B[1] = (byte) i;
-				intToBytes(B, config, 2);
-				B[6] = crc(B, 1, 5, 0);
-				command(B); // send command
-				int erg = getByte(in);
-				if (erg == -1)
+				char erg = writeSingleConfigToAok(i);
+				if (erg == 'X') {
 					break;
+				}
 				if (erg == 'O') {
 					aok.asb.setProgressBarVal(count++); // update the status bar
-					System.out.print('O');
+					if (info) System.out.print('O');
 				} else {
 					i--; // Wert nochmal versuchen
-					System.out.print('E');
+					if (info) System.out.print('E');
 				}
 			}
 		}
@@ -406,6 +406,24 @@ public class AokConnector {
 			command(aok.CMD_DEBUG_ON);
 			// sc.release();
 		}
+	}
+
+	public char writeSingleConfigToAok(int i) throws IOException {
+		byte B[] = new byte[7];
+		if (!connected)
+			return 'X';
+		int config = aok.getAokConfig(i); // the actual configuration
+		aok.setAokConfig(i, config); // the actual configuration
+		// value
+		B[0] = aok.CMD_WRITECONF;
+		B[1] = (byte) i;
+		intToBytes(B, config, 2);
+		B[6] = crc(B, 1, 5, 0);
+		command(B); // send command
+		int erg = getByte(in);
+		if (erg == -1)
+			return 'X';
+		return (char) erg;
 	}
 
 	/**
@@ -595,9 +613,9 @@ public class AokConnector {
 			}
 			long s1 = System.currentTimeMillis();
 			while (in.available() == 0) {
-				Thread.sleep(10);
+				Thread.sleep(50);
 				if (System.currentTimeMillis() - s1 > 1000) {
-					System.out.print("-");
+					if (info) System.out.print('-');
 					return -1;
 				}
 			}
@@ -816,6 +834,23 @@ public class AokConnector {
 	}
 
 	/**
+	 * Motortest mit AOK
+	 * 
+	 * @param motor
+	 * @param value
+	 * @throws IOException
+	 */
+	public void motorTest(int motor, int value) throws IOException {
+		if (!connected) {
+			return;
+		}
+		byte c = (byte)(0x31+motor);
+		command(c);
+		command((byte)value);
+		command((byte)(c^value));
+	}
+	
+	/**
 	 * Toggle the Aok debugging mode and update the infos in the debug window.
 	 * 
 	 * @throws IOException
@@ -875,10 +910,10 @@ public class AokConnector {
 				command(B); // send command
 				int erg = getByte(in);
 				if (erg != 'O') {
-					System.out.print('F');
+					if (info) System.out.print('F');
 					i--;
 				} else {
-					System.out.print('O');
+					if (info) System.out.print('O');
 				}
 			}
 			command(aok.CMD_DEBUG_ON);
@@ -920,4 +955,12 @@ public class AokConnector {
 		return wasOn;
 	}
 
+	public void setInfo(boolean info) {
+		this.info = info;
+	}
+	
+	public void dialogNotConnected() {
+		new MyDialog("AOK not connected","The AOK is not connected to the the computer","OK",true).show();
+	}
+	
 }

@@ -31,10 +31,21 @@ public class Aok {
 	public final static int CONFIG_CHANNEL_PITCH = 11;
 	public final static int CONFIG_CHANNEL_YAW = 12;
 	public final static int CONFIG_OPTIONS = 13;
+	public static final int CONFIG_MIN_GAS = 36;
 	public final static int CONFIG_CHANNEL_HEIGHT = 60;
 	public final static int CONFIG_CHANNEL_VRATE = 82;
+
+	public final static int CONFIG_DEBUG1 = 92;
+	public final static int CONFIG_DEBUG2 = 93;
+	public final static int CONFIG_DEBUG3 = 94;
+	public final static int CONFIG_DEBUG4 = 95;
+	public final static int CONFIG_DEBUG5 = 96;
+	
 	public final static int CONFIG_DEBUG_DELAY = 110;
 	public final static int CONFIG_MIXER1 = 111;
+	public static final int CONFIG_MAG_X_GAS_SLOPE = 135;
+	public static final int CONFIG_MAG_Y_GAS_SLOPE = 136;
+	public static final int CONFIG_MAG_Z_GAS_SLOPE = 137;
 
 	public final static int STATUS_VOLTAGE = 50;
 	public final static int STATUS_GPSFRAMES = 19;
@@ -46,13 +57,19 @@ public class Aok {
 	public final static int STATUS_HOMEHEADING = 33; // ???
 	public final static int STATUS_RX_OK = 34;
 	
+	public static final int STATUS_BATT_VOLTAGE = 85;
+
+	public final static int STATUS_MM3_X = 44;
+	public final static int STATUS_MM3_Y = 45;
+	public final static int STATUS_MM3_Z = 46;
+
 	public final static int STATUS_MAG_X_RAW = 110;
 	public final static int STATUS_MAG_Y_RAW = 111;
 	public final static int STATUS_MAG_Z_RAW = 112;
 
 	/** VERSION */
 	private final static String version = Aok.class.getPackage()
-			.getImplementationVersion();;
+			.getImplementationVersion();
 
 	/** maximal possible state variables */
 	final int STATEMAX = 256;
@@ -103,6 +120,8 @@ public class Aok {
 	AokTabOptions ato = null;
 	AokTabMixer atm = null;
 	AokTabMagnetics atmag = null;
+	AokTabMotorTest atmot = null;
+	MotorTest motorTest = null;
 
 	/** file io */
 	ConfigFile cf = null;
@@ -774,6 +793,7 @@ public class Aok {
 		try {
 			// start the status reader
 			new AokConnector(aok);
+//			new Thread(new TellMe(aok)).start();
 			// and register it in the status window
 		} catch (Exception e) {
 			e.printStackTrace();

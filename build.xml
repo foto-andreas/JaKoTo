@@ -35,7 +35,7 @@
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Main-Class" value="de.schrell.aok.Aok" />
 				<attribute name="Implementation-Version" value="${version.num}, build #${build.number}, ${TODAY}" />
-				<attribute name="Class-Path" value=". lib/idw-gpl.jar lib/RXTXcomm.jar" />
+				<attribute name="Class-Path" value=". lib/idw-gpl.jar lib/RXTXcomm.jar lib/mbrola.jar lib/freetts.jar lib/jsapi.jar" />
 				<attribute name="Built-Date" value="${TODAY}" />
 			</manifest>
 		</jar>
@@ -52,6 +52,7 @@
 			<fileset dir="JaKoTo" includes="JaKoTo.sh" />
 			<fileset dir="JaKoTo" includes="getTooltipsFromWeb.pl" />
 			<fileset dir="JaKoTo" includes="lib/**" />
+			<fileset dir="JaKoTo" includes="voice/**" />
 		</zip>
 
 	</target>
