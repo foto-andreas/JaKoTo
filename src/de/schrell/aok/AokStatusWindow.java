@@ -162,6 +162,8 @@ public class AokStatusWindow {
 					AokTabOptions ato = new AokTabOptions(aok);
                     AokTabMixer atm = new AokTabMixer(aok);
                     AokTabMagnetics atmag = new AokTabMagnetics(aok);
+                    AokTabMotorTest atmot = new AokTabMotorTest(aok);
+                    
 					// AokTabGPS ate = new AokTabGPS(aok);
 
 					views[v++] = new View("Debug and Config", null, ats);
@@ -172,6 +174,7 @@ public class AokStatusWindow {
 					views[v++] = new View("Options", null, ato);
 					views[v++] = new View("Mixer", null, atm);
 					views[v++] = new View("Magnetics", null, atmag);
+					views[v++] = new View("Motortest", null, atmot);
 
 					/** add the views to the view map */
 					for (int i = 0; i < v; i++) {

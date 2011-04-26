@@ -8,5 +8,19 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/home/andreas/workspace/rxtx-2.2pre2-bins/x86_64-unknown-linux-gnu"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="JaKoTo/lib/freetts.jar" sourcepath="/home/andreas/workspace/tts/freetts-1.2.2">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/home/andreas/workspace/tts/freetts-1.2.2/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="JaKoTo/lib/jsapi.jar"/>
+	<classpathentry kind="lib" path="JaKoTo/lib/freetts-jsapi10.jar"/>
+	<classpathentry kind="lib" path="JaKoTo/lib/mbrola.jar"/>
+	<classpathentry kind="lib" path="JaKoTo/lib/cmu_time_awb.jar"/>
+	<classpathentry kind="lib" path="JaKoTo/lib/cmu_us_kal.jar"/>
+	<classpathentry kind="lib" path="JaKoTo/lib/cmudict04.jar"/>
+	<classpathentry kind="lib" path="JaKoTo/lib/cmulex.jar"/>
+	<classpathentry kind="lib" path="JaKoTo/lib/cmutimelex.jar"/>
+	<classpathentry kind="lib" path="JaKoTo/lib/en_us.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

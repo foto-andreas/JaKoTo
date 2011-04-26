@@ -34,7 +34,8 @@ public class AokStatusButtons {
 	JCheckBox debug, connect, log;
 	/** the buttons for the corresponding tasks */
 	JButton reset, readfromaok, writetoaok, readfromfile, writetofile,
-			writeseltofile, replay, replayq, replays, replayb, checkconf;
+			writeseltofile, replay, replayq, replays, replayb, checkconf,
+			autoMag;
 	/** the buttons panel */
 	/** the text fields in the buttons panel */
 	JTextField port, speed;
@@ -95,11 +96,7 @@ public class AokStatusButtons {
 		lbc.setConstraints(speed, bc);
 		buttons.add(speed);
 
-		/*
-		 * TODO create the connect checkbox. At the moment there is only a
-		 * connect and no possibility to disconnect. This will be implemented
-		 * later
-		 */
+		// create the connect checkbox.
 		bc.gridy++;
 		connect = new JCheckBox("Connect to AOK");
 		connect.setSelected(false);
@@ -124,14 +121,13 @@ public class AokStatusButtons {
 		debug.setSelected(aok.getDebug());
 		debug.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (aco != null) {
-					if (!aok.getDebug()) {
-						aco.debugOn();
-					} else {
-						aco.debugOff();
-					}
-					debug.setSelected(aok.getDebug());
+				if (!checkConnected()) return; 
+				if (!aok.getDebug()) {
+					aco.debugOn();
+				} else {
+					aco.debugOff();
 				}
+				debug.setSelected(aok.getDebug());
 			}
 		});
 		lbc.setConstraints(debug, bc);
@@ -193,9 +189,8 @@ public class AokStatusButtons {
 		readfromaok = new JButton("read");
 		readfromaok.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (aco != null) {
-					aco.readConfigFromAok(false);
-				}
+				if (!checkConnected()) return; 
+				aco.readConfigFromAok(false);
 			}
 		});
 		rambox.add(readfromaok);
@@ -204,9 +199,8 @@ public class AokStatusButtons {
 		writetoaok = new JButton("write");
 		writetoaok.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (aco != null) {
-					aco.writeConfigToAok();
-				}
+				if (!checkConnected()) return; 
+				aco.writeConfigToAok();
 			}
 		});
 		rambox.add(writetoaok);
@@ -215,9 +209,8 @@ public class AokStatusButtons {
 		checkconf = new JButton("check");
 		checkconf.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (aco != null) {
-					aco.readConfigFromAok(true);
-				}
+				if (!checkConnected()) return; 
+				aco.readConfigFromAok(true);
 			}
 		});
 		rambox.add(checkconf);
@@ -324,9 +317,9 @@ public class AokStatusButtons {
 			frbox.add(fr[i]);
 			fr[i].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					if (!checkConnected()) return; 
 					try {
-						if (aco != null)
-							aco.flashread(ii + 1);
+						aco.flashread(ii + 1);
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -343,9 +336,9 @@ public class AokStatusButtons {
 			fwbox.add(fw[i]);
 			fw[i].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					if (!checkConnected()) return; 
 					try {
-						if (aco != null)
-							aco.flashwrite(ii + 1);
+						aco.flashwrite(ii + 1);
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -359,13 +352,12 @@ public class AokStatusButtons {
 		fwbox.add(fwa);
 		fwa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (!checkConnected()) return; 
 				try {
-					if (aco != null) {
-						aco.flashwrite(1);
-						aco.flashwrite(2);
-						aco.flashwrite(3);
-						aco.flashwrite(4);
-					}
+					aco.flashwrite(1);
+					aco.flashwrite(2);
+					aco.flashwrite(3);
+					aco.flashwrite(4);
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -381,9 +373,9 @@ public class AokStatusButtons {
 			ssbox.add(ss[i]);
 			ss[i].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					if (!checkConnected()) return; 
 					try {
-						if (aco != null)
-							aco.startset(ii + 1);
+						aco.startset(ii + 1);
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -473,6 +465,7 @@ public class AokStatusButtons {
 		flash = new JButton("flash AOK-Firmware");
 		flash.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (!checkConnected()) return; 
 				JFileChooser chooser = new JFileChooser(
 						(aok.fwpath != null) ? aok.fwpath : "");
 				FileNameExtensionFilter filter = new FileNameExtensionFilter(
@@ -497,9 +490,9 @@ public class AokStatusButtons {
 		reset = new JButton("Reset AOK");
 		reset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (!checkConnected()) return; 
 				try {
-					if (aco != null)
-						aco.reset();
+					aco.reset();
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -508,6 +501,24 @@ public class AokStatusButtons {
 		});
 		lbc.setConstraints(reset, bc);
 		buttons.add(reset);
+
+		// add a reset button to reset the Arm-o-Kopter
+		bc.gridy++;
+		autoMag = new JButton("AutoMag");
+		autoMag.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!checkConnected()) return; 
+				try {
+					Thread t = new Thread(new AutoMagnetics(aok, 100));
+					t.setName("AutoMag");
+					t.start();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		lbc.setConstraints(autoMag, bc);
+		buttons.add(autoMag);
 
 		// add filler space
 		bc.gridy++;
@@ -572,6 +583,20 @@ public class AokStatusButtons {
 		bar.setMaximum(100);
 		bar.setValue(0);
 		barsem.release();
+	}
+
+	/**
+	 * Check if the AOK is connected or display an error dialog.
+	 * 
+	 * @return
+	 */
+	private boolean checkConnected() {
+		if (aco==null) return false;
+		if (!aco.connected) {
+			aco.dialogNotConnected();
+			return false;
+		}
+		return true;
 	}
 
 }

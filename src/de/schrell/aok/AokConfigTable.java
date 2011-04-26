@@ -125,5 +125,9 @@ public class AokConfigTable {
 	public int getConfigSelectedCount() {
 		return table.getSelectedRowCount();
 	}
+	
+	public void clearSelection() {
+		table.clearSelection();
+	}
 
 }

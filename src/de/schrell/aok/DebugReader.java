@@ -3,6 +3,7 @@ package de.schrell.aok;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 /**
  * Reader task for the Aok debugging values. Starts in the background and waits
@@ -21,6 +22,13 @@ public class DebugReader implements Runnable {
 	private InputStream savedStream = null;
 	private long lastC;
 	private static int nullcount = 0;
+	private boolean info = true;
+	
+	private StatusListenerList[] listener = null;
+
+	private class StatusListenerList extends ArrayList<StatusListener> {
+		private static final long serialVersionUID = 8239692029617540417L;
+	}
 
 	/**
 	 * create a debug reader instance
@@ -30,6 +38,10 @@ public class DebugReader implements Runnable {
 	public DebugReader(Aok aok) {
 		super();
 		this.aok = aok;
+		listener = new StatusListenerList[aok.configcount];
+		for (int i = 0; i < aok.configcount; i++) {
+			listener[i] = new StatusListenerList();
+		}
 	}
 
 	public InputStream getStream() {
@@ -90,10 +102,17 @@ public class DebugReader implements Runnable {
 				byte crc = getBytes(B, 5, nr); // get value and crc
 				if (crc == 0x00) { // check crc sum
 					aok.setDebug(true);
-					int value = bytesToInt(B); // convert the bytes to an
-												// integer
+					final int value = bytesToInt(B); // convert the bytes to an
+					// integer
 					// update the table only when the current number
 					// is defined by the legend file
+					if (nr < aok.configcount) {
+						synchronized (listener[nr]) {
+							for (StatusListener listen : listener[nr]) {
+								listen.valueChanged(value);
+							}
+						}
+					}
 					if (nr == 0) {
 						// if (displayAngle == null) {
 						// displayAngle = new DisplayAngle(aok);
@@ -121,13 +140,13 @@ public class DebugReader implements Runnable {
 						aok.setAokState(nr, value);
 					}
 					if (nr == Aok.STATUS_MAG_X_RAW) {
-						aok.atmag.updateRaw(0,value);
+						aok.atmag.updateRaw(0, value);
 					}
 					if (nr == Aok.STATUS_MAG_Y_RAW) {
-						aok.atmag.updateRaw(1,value);
+						aok.atmag.updateRaw(1, value);
 					}
 					if (nr == Aok.STATUS_MAG_Z_RAW) {
-						aok.atmag.updateRaw(2,value);
+						aok.atmag.updateRaw(2, value);
 					}
 					// update the debug status if the crc checksum was correct
 					if (nr == 0) {
@@ -135,13 +154,13 @@ public class DebugReader implements Runnable {
 						aok.asb.debug.setSelected(true);
 					}
 				} else { // CRC error
-					System.out.print('D');
+					if (info) System.out.print('D');
 				}
 			} else {
 				if ((b > 0x1F && b < 0x80) || (b == 0x0d) || (b == 0x0a))
-					System.out.print((char) b);
+					if (info) System.out.print((char) b);
 				else
-					System.out.printf("[%02X]", b);
+					if (info) System.out.printf("[%02X]", b);
 			}
 		} else {
 			Thread.sleep(10); // wait a moment before next
@@ -159,7 +178,8 @@ public class DebugReader implements Runnable {
 	 */
 	private synchronized int getByte() throws IOException {
 		int read = 0xFF;
-		if (in==null) return -1;
+		if (in == null)
+			return -1;
 		try {
 			long s1 = System.currentTimeMillis();
 			while (in.available() == 0) {
@@ -189,8 +209,8 @@ public class DebugReader implements Runnable {
 	 * @return the corresponding crc checksum
 	 * @throws IOException
 	 */
-	private synchronized byte getBytes(InputStream in, byte B[], int num, int init,
-			int offset) throws IOException {
+	private synchronized byte getBytes(InputStream in, byte B[], int num,
+			int init, int offset) throws IOException {
 		boolean err = false;
 		byte crc = (byte) init;
 		for (int i = 0; i < num; i++) {
@@ -297,4 +317,22 @@ public class DebugReader implements Runnable {
 		notify();
 	}
 
+	public void addStatusListener(int configNumber,
+			StatusListener statusListener) {
+		synchronized (listener[configNumber]) {
+			listener[configNumber].add(statusListener);
+		}
+	}
+
+	public void removeStatusListener(int configNumber,
+			StatusListener statusListener) {
+		synchronized (listener[configNumber]) {
+			listener[configNumber].remove(statusListener);
+		}
+	}
+
+	public void setInfo(boolean info) {
+		this.info = info;
+	}
+	
 }
