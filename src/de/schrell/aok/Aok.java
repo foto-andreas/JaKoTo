@@ -576,7 +576,6 @@ public class Aok {
 	 * @param nr
 	 *            number of value to read
 	 * @return configuration value
-	 * @throws InterruptedException
 	 */
 	public int getAokConfig(int nr) {
 
