@@ -78,4 +78,11 @@ public class MotorTest implements Runnable {
 		return running;
 	}
 
+	public int getPitch() {
+		return this.pitch;
+	}
+
+	public int getMotorValue(int mot) {
+		return this.motorValues[mot];
+	}
 }
