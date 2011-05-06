@@ -344,6 +344,18 @@ public class AokConnector {
 	}
 
 	/**
+	 * starts a thread which reads all configuration variables from Aok ram synchronous
+	 */
+	public void writeConfigToAokSync() {
+		try {
+			writeConfigToAokInternal();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
 	 * write all configuration values to the Aok - optionally only selected
 	 * values. Use the status bar to show it running.
 	 * 

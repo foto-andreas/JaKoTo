@@ -15,8 +15,7 @@ public class MeanStatus {
 	}
 	
 	public void restart() {
-		this.statusListener = new StatusListenerImpl(aok, count, statusNumber);
-		aok.getDebugReader().addStatusListener(this.statusNumber, statusListener);
+		this.statusListener = new StatusListener(aok, count, statusNumber);
 	}
 	
 	public int getMean() throws InterruptedException {
