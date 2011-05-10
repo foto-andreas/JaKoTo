@@ -122,6 +122,7 @@ public class AutoMagnetics implements Runnable {
 							aok.motorTest.setMotor(-1, motVal);
 							Thread.sleep(100);
 						}
+						aok.motorTest.setMotor(-1, 0);
 						aok.motorTest.stop();
 						System.out.println("\nmotors stopped.");
 						break;
