@@ -24,6 +24,7 @@ use Net::HTTP;
 #+ hier angegebenen Muster gesichert:
 $maxnr=127;
 $muster="AOK-ParmDoku/AOK-ParmDoku_%d.html";
+mkdir "AOK-ParmDoku";
 #+ Hier holen wir die HTML-Seite ab...
 $host="www.armokopter.at";
 $page="/wiki/doku.php?id=aok:einstieg:parameter";
